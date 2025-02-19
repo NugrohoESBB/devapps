@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+	<title>Invoice</title>
+	<link rel="icon" type="image/png" href="static/images/icons/favicon.ico"/>
+
+	<!-- Custom styles -->
+	<link href="static/css/app.css" rel="stylesheet">
+
+	<!-- Custom styles for this page -->
+	<link href="static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+</head>
+
+<body>
+	<div class="wrapper">
+		<nav id="sidebar" class="sidebar">
+			<div class="sidebar-content js-simplebar">
+				<a class="sidebar-brand" href="/dashboard">
+					<span class="align-middle">Enigma</span>
+				</a>
+
+				<ul class="sidebar-nav">
+					<li class="sidebar-header">
+						Admin
+					</li>
+
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/dashboard">
+							<i class="align-middle" data-feather="sliders"></i> <span class="align-middle">Dashboard</span>
+						</a>
+					</li>
+
+
+					<li class="sidebar-header">
+						Activity Log
+					</li>
+
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/logs">
+							<i class="align-middle" data-feather="activity"></i> <span class="align-middle">Log Data</span>
+						</a>
+					</li>
+
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/informationLog">
+							<i class="align-middle" data-feather="server"></i> <span class="align-middle">Information Data</span>
+						</a>
+					</li>
+
+					<li class="sidebar-header">
+						Input Data
+					</li>
+
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/users">
+							<i class="align-middle" data-feather="image"></i> <span class="align-middle">User Data Form</span>
+						</a>
+					</li>
+
+					<li class="sidebar-item active">
+						<a class="sidebar-link" href="/invoice">
+							<i class="align-middle" data-feather="credit-card"></i> <span class="align-middle">Invoice</span>
+						</a>
+					</li>
+
+				</ul>
+				
+			</div>
+		</nav>
+
+		<div class="main">
+			<nav class="navbar navbar-expand navbar-light navbar-bg">
+				<a class="sidebar-toggle d-flex">
+					<i class="hamburger align-self-center"></i>
+				</a>
+
+
+				<div class="navbar-collapse collapse">
+					<ul class="navbar-nav navbar-align">
+						
+						<li class="nav-item dropdown">
+							<a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#" data-toggle="dropdown">
+								<i class="align-middle" data-feather="settings"></i>
+							</a>
+
+							<a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-toggle="dropdown">
+								<img src="static/images/admin.jpg" class="avatar img-fluid rounded-circle" /> <span class="text-dark">Admin</span>
+							</a>
+							<div class="dropdown-menu dropdown-menu-right">
+								<a class="dropdown-item" href="#"><i class="align-middle mr-1" data-feather="user"></i> Profile</a>
+								<a class="dropdown-item" href="#"><i class="align-middle mr-1" data-feather="pie-chart"></i> Analytics</a>
+								<div class="dropdown-divider"></div>
+								<a class="dropdown-item" href="#"><i class="align-middle mr-1" data-feather="settings"></i> Settings </a>
+								<div class="dropdown-divider"></div>
+								<a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal"><i class="align-middle mr-1" data-feather="log-out"></i>Log out</a>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</nav>
+
+			<main class="content">
+				<div class="container-fluid p-0">
+
+					<div class="row mb-2 mb-xl-3">
+						<div class="col-auto d-none d-sm-block">
+							<h3><strong>Invoice</strong> Dashboard</h3>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-12">
+							<div class="card cardPDF">
+								<div class="card-body m-sm-3 m-md-5">
+									<div class="mb-4">
+										Hello <strong>Charles Hall</strong>,
+										<br /> This is the receipt for a payment of <strong>$268.00</strong> (USD) you made to -.
+									</div>
+
+									<div class="row">
+										<div class="col-md-6">
+											<div class="text-muted">Payment No.</div>
+											<strong>741037024</strong>
+										</div>
+										<div class="col-md-6 text-md-right">
+											<div class="text-muted">Payment Date</div>
+											<strong>October 2, 2018 - 03:45 pm</strong>
+										</div>
+									</div>
+
+									<hr class="my-4" />
+
+									<div class="row mb-4">
+										<div class="col-md-6">
+											<div class="text-muted">Client</div>
+											<strong>
+              Charles Hall
+            </strong>
+											<p>
+												4183 Forest Avenue <br> New York City <br> 10011 <br> USA <br>
+												<a href="#">
+                chris.wood@gmail.com
+              </a>
+											</p>
+										</div>
+										<div class="col-md-6 text-md-right">
+											<div class="text-muted">Payment To</div>
+											<strong>
+              AdminKit Demo LLC
+            </strong>
+											<p>
+												354 Roy Alley <br> Denver <br> 80202 <br> USA <br>
+												<a href="#">
+                info@adminkit.com
+              </a>
+											</p>
+										</div>
+									</div>
+
+									<table class="table table-sm">
+										<thead>
+											<tr>
+												<th>Description</th>
+												<th>Quantity</th>
+												<th class="text-right">Amount</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>AdminKit Demo Theme Customization</td>
+												<td>2</td>
+												<td class="text-right">$150.00</td>
+											</tr>
+											<tr>
+												<td>Monthly Subscription </td>
+												<td>3</td>
+												<td class="text-right">$25.00</td>
+											</tr>
+											<tr>
+												<td>Additional Service</td>
+												<td>1</td>
+												<td class="text-right">$100.00</td>
+											</tr>
+											<tr>
+												<th>&nbsp;</th>
+												<th>Subtotal </th>
+												<th class="text-right">$275.00</th>
+											</tr>
+											<tr>
+												<th>&nbsp;</th>
+												<th>Shipping </th>
+												<th class="text-right">$8.00</th>
+											</tr>
+											<tr>
+												<th>&nbsp;</th>
+												<th>Discount </th>
+												<th class="text-right">5%</th>
+											</tr>
+											<tr>
+												<th>&nbsp;</th>
+												<th>Total </th>
+												<th class="text-right">$268.85</th>
+											</tr>
+										</tbody>
+									</table>
+
+									<div class="text-center">
+										<p class="text-sm">
+											<strong>Extra note:</strong> Please send all items at the same time to the shipping address. Thanks in advance.
+										</p>
+
+										<a id="convert-pdf" class="btn btn-primary">
+            Print this receipt
+          </a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</main>
+
+			<footer class="footer">
+				<div class="container-fluid">
+					<div class="row text-muted">
+						<div class="col-6 text-left">
+							<p class="mb-0">
+								<a href="/dashboard" class="text-muted"><strong>Copyright &copy; Nugroho Eko S Batubara - <span id="year"></span></strong></a>
+							</p>
+						</div>
+					</div>
+				</div>
+			</footer>
+
+		</div>
+	</div>
+
+	<!-- Logout Modal-->
+	<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+					<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+				<div class="modal-footer">
+					<button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+					<a class="btn btn-primary" href="/">Logout</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Bootstrap core JavaScript-->
+	<script src="static/vendor/jquery/jquery.min.js"></script>
+	<script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+	<!-- Core plugin JavaScript-->
+	<script src="static/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+	<!-- Custom scripts for all pages-->
+	<script src="static/js/sb-admin-2.min.js"></script>
+	<script src="static/js/app.js"></script>
+
+	<!-- Page level plugins -->
+	<script src="static/vendor/datatables/jquery.dataTables.min.js"></script>
+	<script src="static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+	
+	<!-- Page level plugins -->
+	<script src="static/vendor/chart.js/Chart.min.js"></script>
+	<script src="static/vendor/jquery/moment.min.js"></script>
+
+	<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+	<script type="text/javascript">
+		document.getElementById("year").textContent = new Date().getFullYear();
+	</script>
+
+	<script>
+        document.getElementById('convert-pdf').addEventListener('click', function () {
+            const table = document.querySelector('cardPDF');
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.text("Invoice", 14, 10);
+            doc.autoTable({
+                html: table,
+                startY: 20,
+                styles: {
+                    font: 'times',
+                    fontSize: 10,
+                },
+                headStyles: { fillColor: [0, 123, 255] },
+            });
+
+            doc.save('Invoice.pdf');
+        });
+    </script>
+
+
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+	<title>User Data Form</title>
+	<link rel="icon" type="image/png" href="static/images/icons/favicon.ico"/>
+
+	<!-- Custom styles -->
+	<link href="static/css/app.css" rel="stylesheet">
+
+	<!-- Custom styles for this page -->
+	<link href="static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+</head>
+
+<body>
+	<div class="wrapper">
+		<nav id="sidebar" class="sidebar">
+			<div class="sidebar-content js-simplebar">
+				<a class="sidebar-brand" href="/dashboard">
+					<span class="align-middle">Enigma</span>
+				</a>
+
+				<ul class="sidebar-nav">
+					<li class="sidebar-header">
+						Admin
+					</li>
+
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/dashboard">
+							<i class="align-middle" data-feather="sliders"></i> <span class="align-middle">Dashboard</span>
+						</a>
+					</li>
+
+
+					<li class="sidebar-header">
+						Activity Log
+					</li>
+
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/logs">
+							<i class="align-middle" data-feather="activity"></i> <span class="align-middle">Log Data</span>
+						</a>
+					</li>
+
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/informationLog">
+							<i class="align-middle" data-feather="server"></i> <span class="align-middle">Information Data</span>
+						</a>
+					</li>
+
+					<li class="sidebar-header">
+						Input Data
+					</li>
+
+					<li class="sidebar-item active">
+						<a class="sidebar-link" href="/users">
+							<i class="align-middle" data-feather="image"></i> <span class="align-middle">User Data Form</span>
+						</a>
+					</li>
+
+				</ul>
+				
+			</div>
+		</nav>
+
+		<div class="main">
+			<nav class="navbar navbar-expand navbar-light navbar-bg">
+				<a class="sidebar-toggle d-flex">
+					<i class="hamburger align-self-center"></i>
+				</a>
+
+				<div class="navbar-collapse collapse">
+					<ul class="navbar-nav navbar-align">
+						
+						<li class="nav-item dropdown">
+							<a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#" data-toggle="dropdown">
+								<i class="align-middle" data-feather="settings"></i>
+							</a>
+
+							<a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-toggle="dropdown">
+								<img src="static/images/admin.jpg" class="avatar img-fluid rounded-circle" /> <span class="text-dark">Admin</span>
+							</a>
+							<div class="dropdown-menu dropdown-menu-right">
+								<a class="dropdown-item" href="#"><i class="align-middle mr-1" data-feather="user"></i> Profile</a>
+								<a class="dropdown-item" href="#"><i class="align-middle mr-1" data-feather="pie-chart"></i> Analytics</a>
+								<div class="dropdown-divider"></div>
+								<a class="dropdown-item" href="#"><i class="align-middle mr-1" data-feather="settings"></i> Settings </a>
+								<div class="dropdown-divider"></div>
+								<a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal"><i class="align-middle mr-1" data-feather="log-out"></i>Log out</a>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</nav>
+
+			<main class="content">
+				<div class="container-fluid p-0">
+
+					<div class="row mb-2 mb-xl-3">
+						<div class="col-auto d-none d-sm-block">
+							<h3><strong>User Data Form</strong> Dashboard</h3>
+						</div>
+					</div>
+
+					<div class="row">
+
+						<div class="col-md-12">
+							<div class="card">
+								<div class="card-header">
+									<h5 class="card-title">Form Data</h5>
+								</div>
+								<div class="card-body">
+									<form action="/addUserData" method="POST">
+										<div class="row">
+											<div class="mb-3 col-md-6">
+												<label class="form-label">Nama</label>
+												<input type="text" name="name" class="form-control" placeholder="Nama" required>
+											</div>
+											<div class="mb-3 col-md-6">
+												<label class="form-label">Email</label>
+												<input type="email" name="email" class="form-control" placeholder="Email" required>
+											</div>
+										</div>
+										<div class="row">
+											<div class="mb-3 col-md-6">
+												<label class="form-label">Latitude</label>
+												<input type="text" id="lat" name="lat" class="form-control" placeholder="Latitude" required>
+											</div>
+											<div class="mb-3 col-md-6">
+												<label class="form-label">Longitude</label>
+												<input type="text" id="lng" name="lng" class="form-control" placeholder="Longitude" required>
+											</div>
+										</div>
+										<!-- <div class="mb-3">
+											<label class="form-label">TEST</label>
+											<input type="text" id="lng" name="lng" class="form-control" placeholder="Longitude" required>
+										</div>
+										<div class="row">
+											<div class="mb-3 col-md-6">
+												<label class="form-label" for="inputCity">Test</label>
+												<input type="text" class="form-control" id="inputCity">
+											</div>
+											<div class="mb-3 col-md-4">
+												<label class="form-label" for="inputState">Test</label>
+												<select id="inputState" class="form-control">
+									                <option selected>Choose...</option>
+									                <option>...</option>
+              									</select>
+											</div>
+											<div class="mb-3 col-md-2">
+												<label class="form-label" for="inputZip">Test</label>
+												<input type="text" class="form-control" id="inputZip">
+											</div>
+										</div> -->
+										<div class="col-12">
+                            				<button type="submit" class="btn btn-primary">Submit</button>
+                        				</div>
+									</form>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</main>
+
+			<footer class="footer">
+				<div class="container-fluid">
+					<div class="row text-muted">
+						<div class="col-6 text-left">
+							<p class="mb-0">
+								<a href="/" class="text-muted"><strong>Copyright &copy; Nugroho Eko S Batubara - <span id="year"></span></strong></a>
+							</p>
+						</div>
+					</div>
+				</div>
+			</footer>
+
+		</div>
+	</div>
+
+	<!-- Logout Modal-->
+	<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+					<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+				<div class="modal-footer">
+					<button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+					<a class="btn btn-primary" href="/">Logout</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Bootstrap core JavaScript-->
+	<script src="static/vendor/jquery/jquery.min.js"></script>
+	<script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+	<!-- Core plugin JavaScript-->
+	<script src="static/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+	<!-- Custom scripts for all pages-->
+	<script src="static/js/sb-admin-2.min.js"></script>
+	<script src="static/js/app.js"></script>
+
+	<!-- Page level plugins -->
+	<script src="static/vendor/datatables/jquery.dataTables.min.js"></script>
+	<script src="static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+	
+	<!-- Page level plugins -->
+	<script src="static/vendor/chart.js/Chart.min.js"></script>
+	<script src="static/vendor/jquery/moment.min.js"></script>
+
+	<script type="text/javascript">
+		document.getElementById("year").textContent = new Date().getFullYear();
+	</script>
+
+</body>
+</html>

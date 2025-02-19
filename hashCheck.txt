@@ -1,0 +1,18 @@
+package hashCheck
+
+import (
+    "fmt"
+    "golang.org/x/crypto/bcrypt"
+)
+
+func main() {
+    hashedPassword := "$2a$10$ZlS0p5A27xT11xHL6IFx1eApVX9oiMt8bTKZfFYtECxuq27rS8OCq"
+    inputPassword := "123qwe123"
+
+    err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(inputPassword))
+    if err != nil {
+        fmt.Println("Password tidak cocok")
+    } else {
+        fmt.Println("Password cocok")
+    }
+}

@@ -1,0 +1,475 @@
+package main
+
+import (
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"html/template"
+	"log"
+	"net/http"
+	"strconv"
+	"time"
+
+	"golang.org/x/crypto/bcrypt"
+	_ "github.com/go-sql-driver/mysql"
+)
+
+var db *sql.DB
+
+type User struct {
+	ID       int    `json:"id"`
+	D        string `json:"d"`
+	T        string `json:"t"`
+	N        string `json:"n"`
+	E        string `json:"e"`
+	LT       string `json:"lt"`
+	LN       string `json:"ln"`
+	P        string `json:"p"`
+	Session  string `json:"session_token"`
+}
+
+type APILogData struct {
+	ID 	int     `json:"id"`
+	D 	string  `json:"d"`
+	T 	string 	`json:"t"`
+	N	string  `json:"n"`
+	K 	float64 `json:"k"`
+	L 	string  `json:"l"`
+	I 	float64 `json:"i"`
+	F	float64 `json:"f"`
+	A 	float64 `json:"a"`
+}
+
+func init() {
+	var err error
+	db, err = sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/db_devapps")
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func main() {
+	http.HandleFunc("/", homeHandler)
+	http.HandleFunc("/login", loginHandler)
+	http.HandleFunc("/users", usersHandler)
+	http.HandleFunc("/logout", logoutHandler)
+	http.HandleFunc("/dashboard", authMiddleware(dashboardHandler))
+	http.HandleFunc("/logs", logDataHandler)
+	http.HandleFunc("/informationLog", informationHandler)
+	http.HandleFunc("/invoice", invoiceHandler)
+
+	// API Routes
+	http.HandleFunc("/addUserData", addUserHandler)
+	http.HandleFunc("/api/users", getUsersHandler)
+	http.HandleFunc("/api/user-stats", getUserStatsHandler)
+
+	http.HandleFunc("/addLogData", addLogDataHandler)
+	http.HandleFunc("/api/logdata-stats", getLogDataStatsHandler)
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+
+	fmt.Println("Server started at :9926")
+	log.Fatal(http.ListenAndServe(":9926", nil))
+}
+
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	var u User
+	json.NewDecoder(r.Body).Decode(&u)
+
+	var storedPassword string
+	err := db.QueryRow("SELECT id, p FROM users WHERE n = ?", u.N).Scan(&u.ID, &storedPassword)
+	if err != nil {
+		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
+		return
+	}
+
+	// Verifikasi password dengan bcrypt
+	err = bcrypt.CompareHashAndPassword([]byte(storedPassword), []byte(u.P))
+	if err != nil {
+		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+		return
+	}
+
+	sessionToken := fmt.Sprintf("session-%d-%d", u.ID, time.Now().Unix())
+	_, err = db.Exec("UPDATE users SET session_token = ? WHERE id = ?", sessionToken, u.ID)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:    "session_token",
+		Value:   sessionToken,
+		Expires: time.Now().Add(24 * time.Hour),
+	})
+	w.WriteHeader(http.StatusOK)
+}
+
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		http.Error(w, "No session found", http.StatusUnauthorized)
+		return
+	}
+	
+	_, err = db.Exec("UPDATE users SET session_token = NULL WHERE session_token = ?", cookie.Value)
+	if err != nil {
+		http.Error(w, "Failed to logout", http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:   "session_token",
+		Value:  "",
+		MaxAge: -1,
+	})
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("templates/home.html")
+	if err != nil {
+		http.Error(w, "Failed to load template", http.StatusInternalServerError)
+		return
+	}
+	tmpl.Execute(w, nil)
+}
+
+func dashboardHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("templates/dashboard.html")
+	if err != nil {
+		http.Error(w, "Failed to load template", http.StatusInternalServerError)
+		return
+	}
+
+	rows, err := db.Query("SELECT id, d, t, n, e, lt, ln, p FROM users LIMIT 5")
+	if err != nil {
+		http.Error(w, "Failed to fetch users data", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var users []User
+	for rows.Next() {
+		var u User
+		rows.Scan(&u.ID, &u.D, &u.T, &u.N, &u.E, &u.LT, &u.LN, &u.P)
+		users = append(users, u)
+	}
+
+	tmpl.Execute(w, users)
+}
+
+func logDataHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("templates/logData.html")
+	if err != nil {
+		http.Error(w, "Failed to load template", http.StatusInternalServerError)
+		return
+	}
+
+	rows, err := db.Query("SELECT id, d, t, n, k, l, i, f, a FROM logs")
+	if err != nil {
+		http.Error(w, "Failed to fetch users data", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var logs []APILogData
+	for rows.Next() {
+		var u APILogData
+		rows.Scan(&u.ID, &u.D, &u.T, &u.N, &u.K, &u.L, &u.I, &u.F, &u.A)
+		logs = append(logs, u)
+	}
+
+	tmpl.Execute(w, logs)
+}
+
+func informationHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("templates/informationLog.html")
+	if err != nil {
+		http.Error(w, "Failed to load template", http.StatusInternalServerError)
+		return
+	}
+
+	rows, err := db.Query("SELECT id, d, t, n, e, lt, ln, p FROM users")
+	if err != nil {
+		http.Error(w, "Failed to fetch users data", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var users []User
+	for rows.Next() {
+		var u User
+		rows.Scan(&u.ID, &u.D, &u.T, &u.N, &u.E, &u.LT, &u.LN, &u.P)
+		users = append(users, u)
+	}
+
+	tmpl.Execute(w, users)
+}
+
+func usersHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("templates/inputUsers.html")
+	if err != nil {
+		http.Error(w, "Failed to load template", http.StatusInternalServerError)
+		return
+	}
+	tmpl.Execute(w, nil)
+}
+
+func invoiceHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("templates/invoice.html")
+	if err != nil {
+		http.Error(w, "Failed to load template", http.StatusInternalServerError)
+		return
+	}
+	tmpl.Execute(w, nil)
+}
+
+// API Handler - For JSON or FORM a Users Input
+func addUserHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost || r.Method == http.MethodGet {
+		var u User
+
+		if r.Method == http.MethodPost {
+			// Coba baca sebagai JSON
+			if r.Header.Get("Content-Type") == "application/json" {
+				err := json.NewDecoder(r.Body).Decode(&u)
+				if err != nil {
+					http.Error(w, "Invalid JSON", http.StatusBadRequest)
+					return
+				}
+			} else {
+				// Jika bukan JSON, baca dari form-data atau query parameters
+				err := r.ParseForm() // Pastikan bisa membaca form-data
+				if err != nil {
+					http.Error(w, "Gagal membaca form", http.StatusBadRequest)
+					return
+				}
+
+				// Ambil data dari form atau query parameters
+				u.N 	= r.FormValue("n")
+				u.E 	= r.FormValue("e")
+				u.LT 	= r.FormValue("lt")
+				u.LN 	= r.FormValue("ln")
+				u.P 	= r.FormValue("p")
+
+				// Pastikan semua field diisi
+				if u.N == "" || u.E == "" || u.LT == "" || u.LN == "" || u.P == "" {
+					http.Error(w, "Semua parameter harus diisi", http.StatusBadRequest)
+					return
+				}
+			}
+		} else { // GET request tetap pakai query parameters
+			u.N 	= r.URL.Query().Get("n")
+			u.E 	= r.URL.Query().Get("e")
+			u.LT 	= r.URL.Query().Get("lt")
+			u.LN 	= r.URL.Query().Get("ln")
+			u.P 	= r.URL.Query().Get("p")
+
+			if u.N == "" || u.E == "" || u.LT == "" || u.LN == "" || u.P == "" {
+				http.Error(w, "Semua parameter harus diisi", http.StatusBadRequest)
+				return
+			}
+		}
+
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.P), bcrypt.DefaultCost)
+		if err != nil {
+			http.Error(w, "Gagal mengenkripsi password", http.StatusInternalServerError)
+			return
+		}
+
+		_, err = db.Exec("INSERT INTO users (d, t, n, e, lt, ln, p) VALUES (NOW(), NOW(), ?, ?, ?, ?, ?)", u.N, u.E, u.LT, u.LN, hashedPassword)
+		if err != nil {
+			http.Error(w, "Gagal menambah pengguna", http.StatusInternalServerError)
+			return
+		}
+
+		// Redirect ke halaman sukses
+		http.Redirect(w, r, "/users", http.StatusSeeOther)
+	}
+}
+
+// API Handler - JSON or FORM Data Input
+func addLogDataHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost || r.Method == http.MethodGet {
+		var u APILogData
+
+		if r.Method == http.MethodPost {
+			// Coba baca sebagai JSON
+			if r.Header.Get("Content-Type") == "application/json" {
+				err := json.NewDecoder(r.Body).Decode(&u)
+				if err != nil {
+					http.Error(w, "Invalid JSON", http.StatusBadRequest)
+					return
+				}
+			} else {
+				// Jika bukan JSON, baca dari form-data atau query parameters
+				err := r.ParseForm() // Pastikan bisa membaca form-data
+				if err != nil {
+					http.Error(w, "Gagal membaca form", http.StatusBadRequest)
+					return
+				}
+				
+				// Ambil data dari form atau query parameters
+				u.N = r.FormValue("n")
+				u.K = parseFloat(r.FormValue("k"))
+				u.L = r.FormValue("l")
+				u.I = parseFloat(r.FormValue("i"))
+				u.F = parseFloat(r.FormValue("f"))
+				u.A = parseFloat(r.FormValue("a"))
+
+				// Pastikan semua field diisi
+				if u.N == "" || u.K == 0 || u.L == "" || u.I == 0 || u.F == 0 || u.A == 0 {
+					http.Error(w, "Semua parameter harus diisi", http.StatusBadRequest)
+					return
+				}
+			}
+		} else { // GET request tetap pakai query parameters
+			u.N = r.URL.Query().Get("n")
+			u.K = parseFloat(r.URL.Query().Get("k"))
+			u.L = r.URL.Query().Get("l")
+			u.I = parseFloat(r.URL.Query().Get("i"))
+			u.F = parseFloat(r.URL.Query().Get("f"))
+			u.A = parseFloat(r.URL.Query().Get("a"))
+
+			if u.N == "" || u.K == 0 || u.L == "" || u.I == 0 || u.F == 0 || u.A == 0 {
+				http.Error(w, "Semua parameter harus diisi", http.StatusBadRequest)
+				return
+			}
+		}
+
+		// Simpan ke database
+		_, err := db.Exec("INSERT INTO logs (n, k, l, i, f, a) VALUES (?, ?, ?, ?, ?, ?)", &u.N, &u.K, &u.L, &u.I, &u.F, &u.A)
+		if err != nil {
+			http.Error(w, "Gagal menambah pengguna", http.StatusInternalServerError)
+			return
+		}
+
+		// Redirect ke halaman sukses
+		http.Redirect(w, r, "/logs", http.StatusSeeOther)
+	}
+}
+
+// Handler GET JSON - For Maps
+func getUsersHandler(w http.ResponseWriter, r *http.Request) {
+	rows, err := db.Query("SELECT id, d, t, n, e, lt, ln, p FROM users LIMIT 2")
+	if err != nil {
+		http.Error(w, "Gagal mengambil data", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var users []User
+	for rows.Next() {
+		var u User
+		err := rows.Scan(&u.ID, &u.D, &u.T, &u.N, &u.E, &u.LT, &u.LN, &u.P)
+		if err != nil {
+			http.Error(w, "Gagal membaca data", http.StatusInternalServerError)
+			return
+		}
+		users = append(users, u)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(users)
+}
+
+// Handler GET JSON - For Users Chart
+func getUserStatsHandler(w http.ResponseWriter, r *http.Request) {
+	rows, err := db.Query("SELECT DATE(d) AS date, COUNT(*) AS count FROM users GROUP BY DATE(d) ORDER BY date ASC LIMIT 7")
+	if err != nil {
+		http.Error(w, "Gagal mengambil statistik pengguna", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var data []map[string]interface{}
+	for rows.Next() {
+		var date string
+		var count int
+		err := rows.Scan(&date, &count)
+		if err != nil {
+			http.Error(w, "Gagal membaca data", http.StatusInternalServerError)
+			return
+		}
+		data = append(data, map[string]interface{}{"date": date, "count": count})
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(data)
+}
+
+// Handler GET JSON - For JPL Chart
+func getLogDataStatsHandler(w http.ResponseWriter, r *http.Request) {
+	rows, err := db.Query("SELECT d, k, i, f, a FROM logs ORDER BY d ASC LIMIT 7")
+	if err != nil {
+		http.Error(w, "Gagal mengambil data log", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var data []map[string]interface{}
+	for rows.Next() {
+		var d string
+		var k float64
+		var i float64
+		var f float64
+		var a float64
+		err := rows.Scan(&d, &k, &i, &f, &a)
+		if err != nil {
+			http.Error(w, "Gagal membaca data", http.StatusInternalServerError)
+			return
+		}
+		data = append(data, map[string]interface{}{
+			"d"	: d,
+			"k"	: k,
+			"i"	: i,
+			"f"	: f,
+			"a"	: a,
+		})
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(data)
+}
+
+// Fungsi untuk mengonversi string ke float64
+func parseFloat(value string) float64 {
+	f, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		return 0
+	}
+	return f
+}
+
+// For hashing p before inserting it into to DB
+func hashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(bytes), err
+}
+
+// For verify the hash p
+func checkPasswordHash(p, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(p))
+	return err == nil
+}
+
+func authMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie("session_token")
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		var userID int
+		err = db.QueryRow("SELECT id FROM users WHERE session_token = ?", cookie.Value).Scan(&userID)
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		next(w, r)
+	}
+}
+
