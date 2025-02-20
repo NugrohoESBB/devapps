@@ -8,7 +8,7 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 
-	<title>Sessions Log</title>
+	<title>Logs Data</title>
 	<link rel="icon" type="image/png" href="static/images/icons/favicon.ico"/>
 
 	<!-- Custom fonts -->
@@ -19,7 +19,7 @@
 	<link href="static/css/app.css" rel="stylesheet">
 
 	<!-- Custom styles for this page -->
-  	<link href="static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+	<link href="static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -46,13 +46,13 @@
 						Activity Log
 					</li>
 
-					<li class="sidebar-item">
+					<li class="sidebar-item active">
 						<a class="sidebar-link" href="/logs">
 							<i class="align-middle" data-feather="activity"></i> <span class="align-middle">Logs Data</span>
 						</a>
 					</li>
 
-					<li class="sidebar-item active">
+					<li class="sidebar-item">
 						<a class="sidebar-link" href="/logsessions">
 							<i class="align-middle" data-feather="user"></i> <span class="align-middle">Sessions Log</span>
 						</a>
@@ -69,7 +69,7 @@
 					</li>
 
 					<li class="sidebar-item">
-						<a class="sidebar-link" href="/regis">
+						<a class="sidebar-link" href="/users">
 							<i class="align-middle" data-feather="image"></i> <span class="align-middle">User Data Form</span>
 						</a>
 					</li>
@@ -114,7 +114,7 @@
 
 					<div class="row mb-2 mb-xl-3">
 						<div class="col-auto d-none d-sm-block">
-							<h3><strong>Sessions Log</strong> Dashboard</h3>
+							<h3><strong>Logs Data</strong> Dashboard</h3>
 						</div>
 					</div>
 					<div class="row">
@@ -133,25 +133,33 @@
 								<div class="table-responsive">
 									<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
 										<thead>
-												<tr>
-													<th>ID</th>
-													<th>D</th>
-													<th>T</th>
-                                                    <th>TN</th>
-                                                    <th>S</th>
-												</tr>
-											</thead>
-                                            <tbody>
-                                                {{range .}}
-                                                <tr>
-                                                    <td>{{.ID}}</td>
-                                                    <td>{{.D}}</td>
-                                                    <td>{{.T}}</td>
-                                                    <td>{{.TN}}</td>
-                                                    <td><span class="badge bg-success">{{.S}}</span></td>
-                                                </tr>
-                                                {{end}}
-                                            </tbody>
+											<tr>
+												<th>ID</th>
+												<th>D</th>
+												<th>T</th>
+												<th>N</th>
+												<th>K</th>
+												<th>L</th>
+												<th>I</th>
+												<th>F</th>
+												<th>A</th>
+											</tr>
+										</thead>
+										<tbody>
+											{{range .}}
+											<tr>
+												<td>{{.ID}}</td>
+												<td>{{.D}}</td>
+												<td>{{.T}}</td>
+												<td>{{.N}}</td>
+												<td>{{.K}}</td>
+												<td>{{.L}}</td>
+												<td>{{.I}}</td>
+												<td>{{.F}}</td>
+												<td>{{.A}}</td>
+											</tr>
+											{{end}}
+										</tbody>
 									</table>
 								</div>
 							</div>
@@ -211,72 +219,77 @@
 	<!-- Page level plugins -->
 	<script src="static/vendor/datatables/jquery.dataTables.min.js"></script>
 	<script src="static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
-  
-  	<!-- Page level plugins -->
-  	<script src="static/vendor/chart.js/Chart.min.js"></script>
-  	<script src="static/vendor/jquery/moment.min.js"></script>
 
-  	<!-- Export to Excel And JSON JavaScript -->
-  	<script src="static/vendor/xlsx/xlsx.full.min.js"></script>
-  	
-  	<script type="text/javascript">
-  		$(document).ready(function() {
-            $('#dataTable').DataTable();
-        });
+	<!-- Page level plugins -->
+	<script src="static/vendor/chart.js/Chart.min.js"></script>
+	<script src="static/vendor/jquery/moment.min.js"></script>
 
-        document.getElementById("year").textContent = new Date().getFullYear();
-  	</script>
+	<!-- Export to Excel And JSON JavaScript -->
+	<script src="static/vendor/xlsx/xlsx.full.min.js"></script>
 
-  	<script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#dataTable').DataTable();
+		});
+
+		document.getElementById("year").textContent = new Date().getFullYear();
+	</script>
+
+	<script>
 		function exportToJSON() {
 			let table = document.getElementById("dataTable");
 			let rows = table.getElementsByTagName("tr");
 			let jsonData = [];
 
-	        for (let i = 1; i < rows.length; i++) {
-	        	let cols = rows[i].getElementsByTagName("td");
-	        	if (cols.length > 0) {
-	        		let rowData = {
-	        			id: cols[0].innerText,
-	        			timestamp: cols[1].innerText,
-	        			jarak: cols[2].innerText,
-	        			pompa: cols[3].innerText,
-	        			luas: cols[4].innerText
-	        		};
-	        		jsonData.push(rowData);
-	        	}
-	        }
+			for (let i = 1; i < rows.length; i++) {
+				let cols = rows[i].getElementsByTagName("td");
+				if (cols.length > 0) {
+					let rowData = {
+						id: cols[0].innerText,
+						d : cols[1].innerText,
+						t : cols[2].innerText,
+						n : cols[3].innerText,
+						k : cols[4].innerText,
+						l : cols[5].innerText,
+						i : cols[6].innerText,
+						f : cols[7].innerText,
+						a : cols[8].innerText
+					};
+					jsonData.push(rowData);
+				}
+			}
 
-	        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonData, null, 2));
-	        let downloadAnchor = document.createElement("a");
-	        downloadAnchor.setAttribute("href", dataStr);
-	        downloadAnchor.setAttribute("download", "sessions_log.json");
-	        document.body.appendChild(downloadAnchor);
-	        downloadAnchor.click();
-	        document.body.removeChild(downloadAnchor);
-	    }
+			let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonData, null, 2));
+			let downloadAnchor = document.createElement("a");
+			downloadAnchor.setAttribute("href", dataStr);
+			downloadAnchor.setAttribute("download", "log_data.json");
+			document.body.appendChild(downloadAnchor);
+			downloadAnchor.click();
+			document.body.removeChild(downloadAnchor);
+		}
 
-	    function exportToExcel() {
-	    	let table = document.getElementById("dataTable");
-	    	let wb = XLSX.utils.table_to_book(table, {sheet: "Information Log"});
-	    	let wbout = XLSX.write(wb, {bookType: "xlsx", type: "binary"});
+		function exportToExcel() {
+			let table = document.getElementById("dataTable");
+			let wb = XLSX.utils.table_to_book(table, {sheet: "Log Data"});
+			let wbout = XLSX.write(wb, {bookType: "xlsx", type: "binary"});
 
-	    	function s2ab(s) {
-	    		let buf = new ArrayBuffer(s.length);
-	    		let view = new Uint8Array(buf);
-	    		for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-	    			return buf;
-	    	}
+			function s2ab(s) {
+				let buf = new ArrayBuffer(s.length);
+				let view = new Uint8Array(buf);
+				for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+					return buf;
+			}
 
-	    	let blob = new Blob([s2ab(wbout)], {type: "application/octet-stream"});
-	    	let downloadAnchor = document.createElement("a");
-	    	downloadAnchor.href = URL.createObjectURL(blob);
-	    	downloadAnchor.download = "sessions_log.xlsx";
-	    	document.body.appendChild(downloadAnchor);
-	    	downloadAnchor.click();
-	    	document.body.removeChild(downloadAnchor);
-	    }
+			let blob = new Blob([s2ab(wbout)], {type: "application/octet-stream"});
+			let downloadAnchor = document.createElement("a");
+			downloadAnchor.href = URL.createObjectURL(blob);
+			downloadAnchor.download = "log_data.xlsx";
+			document.body.appendChild(downloadAnchor);
+			downloadAnchor.click();
+			document.body.removeChild(downloadAnchor);
+		}
 	</script>
+
 
 </body>
 </html>

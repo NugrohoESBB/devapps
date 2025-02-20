@@ -14,7 +14,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, nil)
 }
 
-func UsersHandler(w http.ResponseWriter, r *http.Request) {
+func RegisHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("templates/inputUsers.html")
 	if err != nil {
 		http.Error(w, "Failed to load template", http.StatusInternalServerError)

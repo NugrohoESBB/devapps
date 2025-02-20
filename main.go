@@ -16,6 +16,7 @@ func main() {
 
 	// Authentication
 	http.HandleFunc("/login", handlers.LoginHandler)
+	http.HandleFunc("/regis", handlers.RegisHandler)
 	http.HandleFunc("/logout", handlers.LogoutHandler)
 
 	// Protected pages
@@ -23,7 +24,6 @@ func main() {
 	http.HandleFunc("/logs", handlers.AuthMiddleware(handlers.LogDataHandler))
 	http.HandleFunc("/logsessions", handlers.AuthMiddleware(handlers.LogSessionsHandler))
 	http.HandleFunc("/informationLog", handlers.AuthMiddleware(handlers.InformationHandler))
-	http.HandleFunc("/users", handlers.UsersHandler)
 	http.HandleFunc("/invoice", handlers.AuthMiddleware(handlers.InvoiceHandler))
 
 	// Protected pages - User

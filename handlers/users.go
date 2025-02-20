@@ -81,7 +81,7 @@ func AddUserHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Redirect ke halaman sukses
-		http.Redirect(w, r, "/users", http.StatusSeeOther)
+		http.Redirect(w, r, "/regis", http.StatusSeeOther)
 	}
 }
 

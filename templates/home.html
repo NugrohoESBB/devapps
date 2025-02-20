@@ -26,14 +26,6 @@
             <i class='bx bxs-lock-alt'></i>
             <input type="password" id="p" name="p" placeholder="Password" required>
         </div>
-        <!-- <div class="input-box">
-            <i class='bx bxs-user-circle'></i>
-            <select id="r" name="r" required>
-                <option value="" disabled selected>Role</option>
-                <option value="admin">Admin</option>
-                <option value="user">User</option>
-            </select>
-        </div> -->
         <div class="remember-forgot-box">
             <label for="remember">
                 <input type="checkbox" id="remember"> Remember me
@@ -72,36 +64,11 @@
                 alert("Username atau password salah.");
             }
         });
-
-
-
-
-
-
-
-        /*document.getElementById("loginForm").addEventListener("submit", async function(event) {
-            event.preventDefault();
-
-            const n = document.getElementById("n").value;
-            const p = document.getElementById("p").value;
-
-            const response = await fetch("/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ n, p })
-            });
-
-            if (response.ok) {
-                window.location.href = "/dashboard";
-            } else {
-                alert("Username, password, atau role salah");
-            }
-        });*/
     </script>
 
     <script>
         function gotoRegis() {
-            window.location.href = "/users";
+            window.location.href = "/regis";
         }
     </script>
 
