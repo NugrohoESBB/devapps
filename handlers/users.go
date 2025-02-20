@@ -85,7 +85,7 @@ func AddUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Handler GET JSON - For Maps
+// Handler GET JSON - For Maps Dashboard
 func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
 	rows, err := db.Query("SELECT id, d, t, n, e, lt, ln, p, r FROM users LIMIT 2")
 	if err != nil {
@@ -109,7 +109,7 @@ func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(users)
 }
 
-// Handler GET JSON - For Users Chart
+// Handler GET JSON - For Users Chart Dashboard
 func GetUserStatsHandler(w http.ResponseWriter, r *http.Request) {
 	rows, err := db.Query("SELECT DATE(d) AS date, COUNT(*) AS count FROM users GROUP BY DATE(d) ORDER BY date ASC LIMIT 7")
 	if err != nil {
@@ -134,7 +134,7 @@ func GetUserStatsHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(data)
 }
 
-// Handler For Role Users
+// Handler Authorization - For Role Users
 func GetUserRoleHandler(w http.ResponseWriter, r *http.Request) {
 	role, ok := r.Context().Value("r").(string)
 	if !ok {

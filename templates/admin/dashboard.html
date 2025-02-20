@@ -187,7 +187,7 @@
 								</div>
 								<div class="card-body py-3">
 									<div class="chart chart-sm">
-										<canvas id="userStatsChart"></canvas>
+										<canvas id="loginStatsChart"></canvas>
 									</div>
 								</div>
 							</div>
@@ -237,11 +237,8 @@
 													<th>ID</th>
 													<th>D</th>
 													<th>T</th>
-													<th>N</th>
-													<th>R</th>
-													<th>E</th>
-													<th>LT</th>
-													<th>LN</th>
+													<th>TN</th>
+													<th>S</th>
 												</tr>
 											</thead>
 											<tbody>
@@ -250,11 +247,8 @@
 													<td>{{.ID}}</td>
 													<td>{{.D}}</td>
 													<td>{{.T}}</td>
-													<td>{{.N}}</td>
-													<td>{{.R}}</td>
-													<td>{{.E}}</td>
-													<td>{{.LT}}</td>
-													<td>{{.LN}}</td>
+													<td>{{.TN}}</td>
+													<td><span class="badge bg-success">{{.S}}</span></td>
 												</tr>
 												{{end}}
 											</tbody>
@@ -417,20 +411,20 @@
 
 	<script>
 		document.addEventListener("DOMContentLoaded", function () {
-			fetch("/api/user-stats")
+			fetch("/api/login-stats")
 			.then(response => response.json())
 			.then(data => {
 				const labels = data.map(item => item.date);
 				const counts = data.map(item => item.count);
 
-				const ctx = document.getElementById("userStatsChart").getContext("2d");
+				const ctx = document.getElementById("loginStatsChart").getContext("2d");
 				new Chart(ctx, {
 					type: "line",
 					data: {
 						labels: labels,
 						datasets: [
 							{
-								label: "Users Registered",
+								label: "Users Login",
 								data: counts,
 								borderColor: 'rgba(89, 223, 172, 1)',
 								backgroundColor: 'rgba(192, 255, 209, 0.2)',

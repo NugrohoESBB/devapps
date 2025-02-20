@@ -30,21 +30,21 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := db.Query("SELECT id, d, t, n, e, lt, ln, p, r FROM users LIMIT 5")
+	rows, err := db.Query("SELECT id, d, t, tn, s FROM logsessions ORDER BY id DESC LIMIT 5")
 	if err != nil {
 		http.Error(w, "Failed to fetch users data", http.StatusInternalServerError)
 		return
 	}
 	defer rows.Close()
 
-	var users []User
+	var dash_logs []APILogSessions
 	for rows.Next() {
-		var u User
-		rows.Scan(&u.ID, &u.D, &u.T, &u.N, &u.E, &u.LT, &u.LN, &u.P, &u.R)
-		users = append(users, u)
+		var u APILogSessions
+		rows.Scan(&u.ID, &u.D, &u.T, &u.TN, &u.S)
+		dash_logs = append(dash_logs, u)
 	}
 
-	tmpl.Execute(w, users)
+	tmpl.Execute(w, dash_logs)
 }
 
 func DashboardHandler_User(w http.ResponseWriter, r *http.Request) {
@@ -133,14 +133,14 @@ func InformationHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	var users []User
+	var information_logs []User
 	for rows.Next() {
 		var u User
 		rows.Scan(&u.ID, &u.D, &u.T, &u.N, &u.E, &u.LT, &u.LN, &u.P, &u.R)
-		users = append(users, u)
+		information_logs = append(information_logs, u)
 	}
 
-	tmpl.Execute(w, users)
+	tmpl.Execute(w, information_logs)
 }
 
 func InvoiceHandler(w http.ResponseWriter, r *http.Request) {

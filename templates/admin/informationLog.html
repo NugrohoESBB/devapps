@@ -19,7 +19,7 @@
 	<link href="static/css/app.css" rel="stylesheet">
 
 	<!-- Custom styles for this page -->
-  	<link href="static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+	<link href="static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -133,33 +133,39 @@
 								<div class="table-responsive">
 									<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
 										<thead>
-												<tr>
-													<th>ID</th>
-													<th>D</th>
-													<th>T</th>
-                                                    <th>N</th>
-                                                    <th>R</th>
-                                                    <th>E</th>
-                                                    <th>LT</th>
-                                                    <th>LN</th>
-                                                    <th>P</th>
-												</tr>
-											</thead>
-                                            <tbody>
-                                                {{range .}}
-                                                <tr>
-                                                    <td>{{.ID}}</td>
-                                                    <td>{{.D}}</td>
-                                                    <td>{{.T}}</td>
-                                                    <td>{{.N}}</td>
-                                                    <td>{{.R}}</td>
-                                                    <td>{{.E}}</td>
-                                                    <td>{{.LT}}</td>
-                                                    <td>{{.LN}}</td>
-                                                    <td>{{.P}}</td>
-                                                </tr>
-                                                {{end}}
-                                            </tbody>
+											<tr>
+												<th>ID</th>
+												<th>D</th>
+												<th>T</th>
+												<th>N</th>
+												<th>R</th>
+												<th>E</th>
+												<th>LT</th>
+												<th>LN</th>
+												<th>P</th>
+											</tr>
+										</thead>
+										<tbody>
+											{{range .}}
+											<tr>
+												<td>{{.ID}}</td>
+												<td>{{.D}}</td>
+												<td>{{.T}}</td>
+												<td>{{.N}}</td>
+												<td>
+													{{if eq .R "admin"}}
+														<span class="badge bg-success">{{.R}}</span>
+													{{else}}
+														<span class="badge bg-secondary">{{.R}}</span>
+													{{end}}
+												</td>
+												<td>{{.E}}</td>
+												<td>{{.LT}}</td>
+												<td>{{.LN}}</td>
+												<td>{{.P}}</td>
+											</tr>
+											{{end}}
+										</tbody>
 									</table>
 								</div>
 							</div>
@@ -219,71 +225,71 @@
 	<!-- Page level plugins -->
 	<script src="static/vendor/datatables/jquery.dataTables.min.js"></script>
 	<script src="static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
-  
-  	<!-- Page level plugins -->
-  	<script src="static/vendor/chart.js/Chart.min.js"></script>
-  	<script src="static/vendor/jquery/moment.min.js"></script>
 
-  	<!-- Export to Excel And JSON JavaScript -->
-  	<script src="static/vendor/xlsx/xlsx.full.min.js"></script>
-  	
-  	<script type="text/javascript">
-  		$(document).ready(function() {
-            $('#dataTable').DataTable();
-        });
+	<!-- Page level plugins -->
+	<script src="static/vendor/chart.js/Chart.min.js"></script>
+	<script src="static/vendor/jquery/moment.min.js"></script>
 
-        document.getElementById("year").textContent = new Date().getFullYear();
-  	</script>
+	<!-- Export to Excel And JSON JavaScript -->
+	<script src="static/vendor/xlsx/xlsx.full.min.js"></script>
 
-  	<script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#dataTable').DataTable();
+		});
+
+		document.getElementById("year").textContent = new Date().getFullYear();
+	</script>
+
+	<script>
 		function exportToJSON() {
 			let table = document.getElementById("dataTable");
 			let rows = table.getElementsByTagName("tr");
 			let jsonData = [];
 
-	        for (let i = 1; i < rows.length; i++) {
-	        	let cols = rows[i].getElementsByTagName("td");
-	        	if (cols.length > 0) {
-	        		let rowData = {
-	        			id: cols[0].innerText,
-	        			timestamp: cols[1].innerText,
-	        			jarak: cols[2].innerText,
-	        			pompa: cols[3].innerText,
-	        			luas: cols[4].innerText
-	        		};
-	        		jsonData.push(rowData);
-	        	}
-	        }
+			for (let i = 1; i < rows.length; i++) {
+				let cols = rows[i].getElementsByTagName("td");
+				if (cols.length > 0) {
+					let rowData = {
+						id: cols[0].innerText,
+						timestamp: cols[1].innerText,
+						jarak: cols[2].innerText,
+						pompa: cols[3].innerText,
+						luas: cols[4].innerText
+					};
+					jsonData.push(rowData);
+				}
+			}
 
-	        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonData, null, 2));
-	        let downloadAnchor = document.createElement("a");
-	        downloadAnchor.setAttribute("href", dataStr);
-	        downloadAnchor.setAttribute("download", "information_log.json");
-	        document.body.appendChild(downloadAnchor);
-	        downloadAnchor.click();
-	        document.body.removeChild(downloadAnchor);
-	    }
+			let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonData, null, 2));
+			let downloadAnchor = document.createElement("a");
+			downloadAnchor.setAttribute("href", dataStr);
+			downloadAnchor.setAttribute("download", "information_log.json");
+			document.body.appendChild(downloadAnchor);
+			downloadAnchor.click();
+			document.body.removeChild(downloadAnchor);
+		}
 
-	    function exportToExcel() {
-	    	let table = document.getElementById("dataTable");
-	    	let wb = XLSX.utils.table_to_book(table, {sheet: "Information Log"});
-	    	let wbout = XLSX.write(wb, {bookType: "xlsx", type: "binary"});
+		function exportToExcel() {
+			let table = document.getElementById("dataTable");
+			let wb = XLSX.utils.table_to_book(table, {sheet: "Information Log"});
+			let wbout = XLSX.write(wb, {bookType: "xlsx", type: "binary"});
 
-	    	function s2ab(s) {
-	    		let buf = new ArrayBuffer(s.length);
-	    		let view = new Uint8Array(buf);
-	    		for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-	    			return buf;
-	    	}
+			function s2ab(s) {
+				let buf = new ArrayBuffer(s.length);
+				let view = new Uint8Array(buf);
+				for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+					return buf;
+			}
 
-	    	let blob = new Blob([s2ab(wbout)], {type: "application/octet-stream"});
-	    	let downloadAnchor = document.createElement("a");
-	    	downloadAnchor.href = URL.createObjectURL(blob);
-	    	downloadAnchor.download = "information_log.xlsx";
-	    	document.body.appendChild(downloadAnchor);
-	    	downloadAnchor.click();
-	    	document.body.removeChild(downloadAnchor);
-	    }
+			let blob = new Blob([s2ab(wbout)], {type: "application/octet-stream"});
+			let downloadAnchor = document.createElement("a");
+			downloadAnchor.href = URL.createObjectURL(blob);
+			downloadAnchor.download = "information_log.xlsx";
+			document.body.appendChild(downloadAnchor);
+			downloadAnchor.click();
+			document.body.removeChild(downloadAnchor);
+		}
 	</script>
 
 </body>

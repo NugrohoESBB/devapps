@@ -29,10 +29,12 @@ func main() {
 	// Protected pages - User
 	http.HandleFunc("/dashboard-user", handlers.AuthMiddleware(handlers.DashboardHandler_User))
 
+	// =============== ALL API ===============
 	// User API
 	http.HandleFunc("/addUserData", handlers.AddUserHandler)
 	http.HandleFunc("/api/users", handlers.GetUsersHandler)
-	http.HandleFunc("/api/user-stats", handlers.GetUserStatsHandler)
+	http.HandleFunc("/api/user-stats", handlers.GetUserStatsHandler) // Optional
+	http.HandleFunc("/api/login-stats", handlers.GetLoginStatsHandler)
 	http.HandleFunc("/api/user-role", handlers.AuthMiddleware(handlers.GetUserRoleHandler))
 
 	// Log Data API
