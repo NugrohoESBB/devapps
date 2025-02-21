@@ -24,6 +24,7 @@ func main() {
 	http.HandleFunc("/logs", handlers.AuthMiddleware(handlers.LogDataHandler))
 	http.HandleFunc("/logsessions", handlers.AuthMiddleware(handlers.LogSessionsHandler))
 	http.HandleFunc("/informationLog", handlers.AuthMiddleware(handlers.InformationHandler))
+	http.HandleFunc("/logtasks", handlers.AuthMiddleware(handlers.LogTasksHandler))
 	http.HandleFunc("/invoice", handlers.AuthMiddleware(handlers.InvoiceHandler))
 
 	// Protected pages - User
@@ -40,6 +41,11 @@ func main() {
 	// Log Data API
 	http.HandleFunc("/addLogData", handlers.AddLogDataHandler)
 	http.HandleFunc("/api/logdata-stats", handlers.GetLogDataStatsHandler)
+
+	// Task API
+	http.HandleFunc("/addLogTask", handlers.AddLogTaskHandler)
+	http.HandleFunc("/deleteTask", handlers.DeleteTasksHandler)
+	http.HandleFunc("/api/notificationTask", handlers.GetNotificationsHandler)
 
 	// Serve static files
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))

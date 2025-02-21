@@ -143,6 +143,30 @@ func InformationHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, information_logs)
 }
 
+func LogTasksHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("templates/admin/logTask.html")
+	if err != nil {
+		http.Error(w, "Failed to load template", http.StatusInternalServerError)
+		return
+	}
+
+	rows, err := db.Query("SELECT id, r, dc, rt FROM logtasks ORDER BY id DESC")
+	if err != nil {
+		http.Error(w, "Failed to fetch users data", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var task_logs []APILogTasks
+	for rows.Next() {
+		var u APILogTasks
+		rows.Scan(&u.ID, &u.R, &u.DC, &u.RT)
+		task_logs = append(task_logs, u)
+	}
+
+	tmpl.Execute(w, task_logs)
+}
+
 func InvoiceHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("templates/admin/invoice.html")
 	if err != nil {

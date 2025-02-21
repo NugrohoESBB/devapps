@@ -26,6 +26,17 @@ type APILogSessions struct {
 	S 	string `json:"s"`
 }
 
+type APILogTasks struct {
+	ID	int    `json:"id"`
+	D 	string `json:"d"`
+	T 	string `json:"t"`
+	R 	string `json:"r"`
+	DC 	string `json:"dc"`
+	RT 	string `json:"rt"`
+}
+
+// ======================================== LOGS DATA
+
 // API Handler - JSON or FORM Data Input
 func AddLogDataHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost || r.Method == http.MethodGet {
@@ -118,6 +129,17 @@ func GetLogDataStatsHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(data)
 }
 
+// Fungsi untuk mengonversi string ke float64
+func parseFloat(value string) float64 {
+	f, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		return 0
+	}
+	return f
+}
+
+// ======================================== SESSIONS LOG
+
 // Handler GET JSON - For User Login Chart Dashboard
 func GetLoginStatsHandler(w http.ResponseWriter, r *http.Request) {
 	rows, err := db.Query("SELECT DATE(d) AS date, COUNT(*) AS count FROM logsessions GROUP BY DATE(d) ORDER BY date ASC LIMIT 7")
@@ -143,11 +165,106 @@ func GetLoginStatsHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(data)
 }
 
-// Fungsi untuk mengonversi string ke float64
-func parseFloat(value string) float64 {
-	f, err := strconv.ParseFloat(value, 64)
-	if err != nil {
-		return 0
+// ======================================== TASK LOG
+
+// API Handler - JSON or FORM Data Input
+func AddLogTaskHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost || r.Method == http.MethodGet {
+		var u APILogTasks
+
+		if r.Method == http.MethodPost {
+			if r.Header.Get("Content-Type") == "application/json" {
+				err := json.NewDecoder(r.Body).Decode(&u)
+				if err != nil {
+					http.Error(w, "Invalid JSON", http.StatusBadRequest)
+					return
+				}
+			} else {
+				// Jika bukan JSON, baca dari form-data atau query parameters
+				err := r.ParseForm()
+				if err != nil {
+					http.Error(w, "Gagal membaca form", http.StatusBadRequest)
+					return
+				}
+				
+				u.R  = r.FormValue("r")
+				u.DC = r.FormValue("dc")
+				u.RT = r.FormValue("rt")
+
+				if u.R == "" || u.DC == "" || u.RT == "" {
+					http.Error(w, "Semua parameter harus diisi", http.StatusBadRequest)
+					return
+				}
+			}
+		} else {
+			// GET request tetap pakai query parameters
+			u.R  = r.URL.Query().Get("r")
+			u.DC = r.URL.Query().Get("dc")
+			u.RT = r.URL.Query().Get("rt")
+
+			if u.R == "" || u.DC == "" || u.RT == "" {
+				http.Error(w, "Semua parameter harus diisi", http.StatusBadRequest)
+				return
+			}
+		}
+
+		_, err := db.Exec("INSERT INTO logtasks (r, dc, rt) VALUES (?, ?, ?)", &u.R, &u.DC, &u.RT)
+		if err != nil {
+			http.Error(w, "Gagal menambah pengguna", http.StatusInternalServerError)
+			return
+		}
+
+		// Redirect ke halaman sukses
+		http.Redirect(w, r, "/logtasks", http.StatusSeeOther)
 	}
-	return f
+}
+
+// API Handler - Delete JSON or FORM Data
+func DeleteTasksHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Metode tidak diizinkan", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Ambil ID dari form
+	idStr := r.FormValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "ID tidak valid", http.StatusBadRequest)
+		return
+	}
+
+	// Eksekusi query DELETE
+	_, err = db.Exec("DELETE FROM logtasks WHERE id = ?", id)
+	if err != nil {
+		http.Error(w, "Gagal menghapus data", http.StatusInternalServerError)
+		return
+	}
+
+	// Berikan respons sukses
+	w.WriteHeader(http.StatusOK)
+}
+
+// API Handler - Notifications From Task Log
+func GetNotificationsHandler(w http.ResponseWriter, r *http.Request) {
+	rows, err := db.Query("SELECT id, d, t, r, dc, rt FROM logtasks ORDER BY id DESC")
+	if err != nil {
+		http.Error(w, "Gagal mengambil data", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var notif []APILogTasks
+	for rows.Next() {
+		var u APILogTasks
+		err := rows.Scan(&u.ID, &u.D, &u.T, &u.R, &u.DC, &u.RT)
+		if err != nil {
+			http.Error(w, "Gagal membaca data", http.StatusInternalServerError)
+			return
+		}
+		notif = append(notif, u)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(notif)
 }

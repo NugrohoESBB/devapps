@@ -8,18 +8,16 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 
-	<title>Logs Data</title>
+	<title>Task Log</title>
 	<link rel="icon" type="image/png" href="static/images/icons/favicon.ico"/>
-
-	<!-- Custom fonts -->
-	<!-- <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-	<link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet"> -->
 
 	<!-- Custom styles -->
 	<link href="static/css/app.css" rel="stylesheet">
 
 	<!-- Custom styles for this page -->
 	<link href="static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 </head>
 
 <body>
@@ -46,7 +44,7 @@
 						Activity Log
 					</li>
 
-					<li class="sidebar-item active">
+					<li class="sidebar-item">
 						<a class="sidebar-link" href="/logs">
 							<i class="align-middle" data-feather="activity"></i> <span class="align-middle">Logs Data</span>
 						</a>
@@ -68,7 +66,7 @@
 						Input Data
 					</li>
 
-					<li class="sidebar-item">
+					<li class="sidebar-item active">
 						<a class="sidebar-link" href="/logtasks">
 							<i class="align-middle" data-feather="mail"></i> <span class="align-middle">Task</span>
 						</a>
@@ -81,6 +79,7 @@
 					</li>
 
 				</ul>
+				
 			</div>
 		</nav>
 
@@ -131,7 +130,7 @@
 								<a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal"><i class="align-middle mr-1" data-feather="log-out"></i>Log out</a>
 							</div>
 						</li>
-						
+
 					</ul>
 				</div>
 			</nav>
@@ -141,59 +140,101 @@
 
 					<div class="row mb-2 mb-xl-3">
 						<div class="col-auto d-none d-sm-block">
-							<h3><strong>Logs Data</strong> Dashboard</h3>
+							<h3><strong>Task</strong> Dashboard</h3>
 						</div>
 					</div>
+
 					<div class="row">
+						<div class="col-12 col-lg-6">
+							<div class="card">
+								<div class="card-header">
+									<h5 class="card-title">Default alerts</h5>
+									<h6 class="card-subtitle text-muted">Alerts with contextual background color.</h6>
+								</div>
+								<div class="card-body">
+									<div class="mb-3">
+										{{range .}}
+										{{if eq .R "admin"}}
+										<div class="alert alert-success alert-dismissible" role="alert" id="alert-{{.ID}}">
+											<button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="deleteTask({{.ID}})">
+												<span aria-hidden="true">&times;</span>
+											</button>
+											<div class="alert-icon">
+												<i class="far fa-fw fa-bell"></i>
+											</div>
+											<div class="alert-message">
+												<strong name="id" value="{{.ID}}">Hello {{.R}}!</strong> {{.DC}}
+											</div>
+										</div>
+										{{else}}
+										<div class="alert alert-primary alert-dismissible" role="alert" id="alert-{{.ID}}">
+											<button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="deleteTask({{.ID}})">
+												<span aria-hidden="true">&times;</span>
+											</button>
+											<div class="alert-icon">
+												<i class="far fa-fw fa-bell"></i>
+											</div>
+											<div class="alert-message">
+												<strong name="id" value="{{.ID}}">Hello {{.R}}!</strong> {{.DC}}
+											</div>
+										</div>
+										{{end}}
+										{{end}}
 
-						<div class="card shadow mb-4">
-							<div class="card-header py-3 d-flex justify-content-between align-items-center">
-								<h5 class="card-title mb-0">Log Data</h5>
-								<div class="ml-auto">
-									<button class="btn btn-outline-secondary mr-2" onclick="exportToExcel()">Export to Excel</button>
-									<button class="btn btn-outline-secondary" onclick="exportToJSON()">Export to JSON</button>
+									</div>
 								</div>
 							</div>
-							
-							
-							<div class="card-body">
-								<div class="table-responsive">
-									<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-										<thead>
-											<tr>
-												<th>ID</th>
-												<th>D</th>
-												<th>T</th>
-												<th>N</th>
-												<th>K</th>
-												<th>L</th>
-												<th>I</th>
-												<th>F</th>
-												<th>A</th>
-											</tr>
-										</thead>
-										<tbody>
-											{{range .}}
-											<tr>
-												<td>{{.ID}}</td>
-												<td>{{.D}}</td>
-												<td>{{.T}}</td>
-												<td>{{.N}}</td>
-												<td>{{.K}}</td>
-												<td>{{.L}}</td>
-												<td>{{.I}}</td>
-												<td>{{.F}}</td>
-												<td>{{.A}}</td>
-											</tr>
-											{{end}}
-										</tbody>
-									</table>
+						</div>
+
+						<div class="col-12 col-xl-6">
+							<div class="card">
+								<div class="card-header">
+									<h5 class="card-title">Horizontal form</h5>
+									<h6 class="card-subtitle text-muted">Horizontal Bootstrap layout.</h6>
+								</div>
+								<div class="card-body">
+									<form action="/addLogTask" method="POST">
+										<div class="mb-3 row">
+											<label class="col-form-label col-sm-2 text-sm-right">Task</label>
+											<div class="col-sm-10">
+												<textarea id="dc" name="dc" class="form-control" placeholder="Textarea" rows="3"></textarea>
+											</div>
+										</div>
+										<div class="mb-3 row">
+											<label class="col-form-label col-sm-2 text-sm-right" for="inputState">Role</label>
+											<div class="col-sm-10">
+												<select id="r" name="r" class="form-control" required>
+													<option value="" disabled selected>Choose...</option>
+													<option value="admin">Admin</option>
+													<option value="user">User</option>
+												</select>
+											</div>
+										</div>
+										<div class="mb-3 row">
+											<label class="col-form-label col-sm-2 text-sm-right" for="inputState">Routes</label>
+											<div class="col-sm-10">
+												<select id="rt" name="rt" class="form-control" required>
+													<option value="" disabled selected>Choose...</option>
+													<option value="/dashboard">Dashboard</option>
+													<option value="/logs">Logs</option>
+													<option value="/logsessions">Sessions Log</option>
+													<option value="/informationLog">Information Log</option>
+													<option value="/logtasks">Tasks Log</option>
+													<option value="/invoice">Invoice</option>
+												</select>
+											</div>
+										</div>
+										<div class="mb-3 row">
+											<div class="col-sm-10 ml-sm-auto">
+												<button type="submit" class="btn btn-primary">Submit</button>
+											</div>
+										</div>
+									</form>
 								</div>
 							</div>
 						</div>
 
 					</div>
-
 				</div>
 			</main>
 
@@ -202,7 +243,7 @@
 					<div class="row text-muted">
 						<div class="col-6 text-left">
 							<p class="mb-0">
-								<a href="/" class="text-muted"><strong>Copyright &copy; Nugroho Eko S Batubara - <span id="year"></span></strong></a>
+								<a href="/dashboard" class="text-muted"><strong>Copyright &copy; Nugroho Eko S Batubara - <span id="year"></span></strong></a>
 							</p>
 						</div>
 					</div>
@@ -211,7 +252,6 @@
 
 		</div>
 	</div>
-
 
 	<!-- Logout Modal-->
 	<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -226,7 +266,7 @@
 				<div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
 				<div class="modal-footer">
 					<button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-					<a class="btn btn-primary" href="/">Logout</a>
+					<a class="btn btn-primary" href="javascript:void(0);" onclick="logout()">Logout</a>
 				</div>
 			</div>
 		</div>
@@ -246,20 +286,33 @@
 	<!-- Page level plugins -->
 	<script src="static/vendor/datatables/jquery.dataTables.min.js"></script>
 	<script src="static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
-
+	
 	<!-- Page level plugins -->
 	<script src="static/vendor/chart.js/Chart.min.js"></script>
 	<script src="static/vendor/jquery/moment.min.js"></script>
 
-	<!-- Export to Excel And JSON JavaScript -->
-	<script src="static/vendor/xlsx/xlsx.full.min.js"></script>
+	<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 
 	<script type="text/javascript">
-		$(document).ready(function() {
-			$('#dataTable').DataTable();
-		});
-
 		document.getElementById("year").textContent = new Date().getFullYear();
+
+		/* Delete Task Log */
+		function deleteTask(id) {
+			fetch('/deleteTask', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				body: 'id=' + id
+			})
+			.then(response => {
+				if (response.ok) {
+				// Hapus elemen alert dari DOM
+					document.getElementById("alert-" + id).remove();
+				} else {
+					alert("Gagal menghapus data");
+				}
+			})
+			.catch(error => console.error('Error:', error));
+		}
 	</script>
 
 	<script>
@@ -307,62 +360,6 @@
 			});
 		});
 	</script>
-
-	<script>
-		function exportToJSON() {
-			let table = document.getElementById("dataTable");
-			let rows = table.getElementsByTagName("tr");
-			let jsonData = [];
-
-			for (let i = 1; i < rows.length; i++) {
-				let cols = rows[i].getElementsByTagName("td");
-				if (cols.length > 0) {
-					let rowData = {
-						id: cols[0].innerText,
-						d : cols[1].innerText,
-						t : cols[2].innerText,
-						n : cols[3].innerText,
-						k : cols[4].innerText,
-						l : cols[5].innerText,
-						i : cols[6].innerText,
-						f : cols[7].innerText,
-						a : cols[8].innerText
-					};
-					jsonData.push(rowData);
-				}
-			}
-
-			let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonData, null, 2));
-			let downloadAnchor = document.createElement("a");
-			downloadAnchor.setAttribute("href", dataStr);
-			downloadAnchor.setAttribute("download", "log_data.json");
-			document.body.appendChild(downloadAnchor);
-			downloadAnchor.click();
-			document.body.removeChild(downloadAnchor);
-		}
-
-		function exportToExcel() {
-			let table = document.getElementById("dataTable");
-			let wb = XLSX.utils.table_to_book(table, {sheet: "Log Data"});
-			let wbout = XLSX.write(wb, {bookType: "xlsx", type: "binary"});
-
-			function s2ab(s) {
-				let buf = new ArrayBuffer(s.length);
-				let view = new Uint8Array(buf);
-				for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-					return buf;
-			}
-
-			let blob = new Blob([s2ab(wbout)], {type: "application/octet-stream"});
-			let downloadAnchor = document.createElement("a");
-			downloadAnchor.href = URL.createObjectURL(blob);
-			downloadAnchor.download = "log_data.xlsx";
-			document.body.appendChild(downloadAnchor);
-			downloadAnchor.click();
-			document.body.removeChild(downloadAnchor);
-		}
-	</script>
-
 
 </body>
 </html>

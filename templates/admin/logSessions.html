@@ -69,8 +69,14 @@
 					</li>
 
 					<li class="sidebar-item">
-						<a class="sidebar-link" href="/regis">
-							<i class="align-middle" data-feather="image"></i> <span class="align-middle">User Data Form</span>
+						<a class="sidebar-link" href="/logtasks">
+							<i class="align-middle" data-feather="mail"></i> <span class="align-middle">Task</span>
+						</a>
+					</li>
+
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/invoice">
+							<i class="align-middle" data-feather="credit-card"></i> <span class="align-middle">Invoice</span>
 						</a>
 					</li>
 
@@ -87,6 +93,26 @@
 
 				<div class="navbar-collapse collapse">
 					<ul class="navbar-nav navbar-align">
+
+						<li class="nav-item dropdown">
+							<a class="nav-icon dropdown-toggle" href="#" id="alertsDropdown" data-toggle="dropdown">
+								<div class="position-relative">
+									<i class="align-middle" data-feather="bell"></i>
+									<span class="indicator" id="notificationCount">0</span>
+								</div>
+							</a>
+							<div class="dropdown-menu dropdown-menu-lg dropdown-menu-right py-0" aria-labelledby="alertsDropdown">
+								<div class="dropdown-menu-header">
+									<span id="notificationText">No New Notifications</span>
+								</div>
+								<div class="list-group" id="notificationList">
+									<!-- Notifications will be appended here dynamically -->
+								</div>
+								<div class="dropdown-menu-footer">
+									<a href="#" class="text-muted">Show all notifications</a>
+								</div>
+							</div>
+						</li>
 						
 						<li class="nav-item dropdown">
 							<a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#" data-toggle="dropdown">
@@ -105,6 +131,7 @@
 								<a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal"><i class="align-middle mr-1" data-feather="log-out"></i>Log out</a>
 							</div>
 						</li>
+						
 					</ul>
 				</div>
 			</nav>
@@ -226,6 +253,52 @@
 
         document.getElementById("year").textContent = new Date().getFullYear();
   	</script>
+
+  	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			fetch('/api/notificationTask')
+			.then(response => response.json())
+			.then(data => {
+				const notificationCount = document.getElementById('notificationCount');
+				notificationCount.textContent = data.length;
+
+				const notificationText = document.getElementById('notificationText');
+				if (data.length > 0) {
+					notificationText.textContent = `${data.length} New Notifications`;
+				} else {
+					notificationText.textContent = 'No New Notifications';
+				}
+
+				const notificationList = document.getElementById('notificationList');
+				notificationList.innerHTML = '';
+				data.forEach(notification => {
+					const notificationItem = document.createElement('a');
+					notificationItem.classList.add('list-group-item');
+					notificationItem.href = notification.rt;
+
+					notificationItem.innerHTML = `
+                    <div class="row g-0 align-items-center">
+                        <div class="col-2">
+                            <i class="text-warning" data-feather="bell"></i>
+                        </div>
+                        <div class="col-10">
+                            <div class="text-dark">Hello <strong>${notification.r}</strong></div>
+                            <div class="text-muted small mt-1">${notification.d} ${notification.t}</div>
+                            <div class="text-muted small mt-1">${notification.dc}</div>
+                        </div>
+                    </div>
+					`;
+
+					notificationList.appendChild(notificationItem);
+				});
+
+				feather.replace();
+			})
+			.catch(error => {
+				console.error('Error fetching notifications:', error);
+			});
+		});
+	</script>
 
   	<script>
 		function exportToJSON() {
