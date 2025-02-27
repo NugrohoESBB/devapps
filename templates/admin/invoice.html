@@ -313,27 +313,28 @@
 
 	<script>
 		document.addEventListener('DOMContentLoaded', function() {
-			fetch('/api/notificationTask')
-			.then(response => response.json())
-			.then(data => {
-				const notificationCount = document.getElementById('notificationCount');
-				notificationCount.textContent = data.length;
+			function fetchNotifications() {
+				fetch('/api/notificationTask')
+				.then(response => response.json())
+				.then(data => {
+					const notificationCount = document.getElementById('notificationCount');
+					notificationCount.textContent = data.length;
 
-				const notificationText = document.getElementById('notificationText');
-				if (data.length > 0) {
-					notificationText.textContent = `${data.length} New Notifications`;
-				} else {
-					notificationText.textContent = 'No New Notifications';
-				}
+					const notificationText = document.getElementById('notificationText');
+					if (data.length > 0) {
+						notificationText.textContent = `${data.length} New Notifications`;
+					} else {
+						notificationText.textContent = 'No New Notifications';
+					}
 
-				const notificationList = document.getElementById('notificationList');
-				notificationList.innerHTML = '';
-				data.forEach(notification => {
-					const notificationItem = document.createElement('a');
-					notificationItem.classList.add('list-group-item');
-					notificationItem.href = notification.rt;
+					const notificationList = document.getElementById('notificationList');
+					notificationList.innerHTML = '';
+					data.forEach(notification => {
+						const notificationItem = document.createElement('a');
+						notificationItem.classList.add('list-group-item');
+						notificationItem.href = notification.rt;
 
-					notificationItem.innerHTML = `
+						notificationItem.innerHTML = `
                     <div class="row g-0 align-items-center">
                         <div class="col-2">
                             <i class="text-warning" data-feather="bell"></i>
@@ -344,16 +345,19 @@
                             <div class="text-muted small mt-1">${notification.dc}</div>
                         </div>
                     </div>
-					`;
+						`;
 
-					notificationList.appendChild(notificationItem);
+						notificationList.appendChild(notificationItem);
+					});
+
+					feather.replace();
+				})
+				.catch(error => {
+					console.error('Error fetching notifications:', error);
 				});
-
-				feather.replace();
-			})
-			.catch(error => {
-				console.error('Error fetching notifications:', error);
-			});
+			}
+			fetchNotifications();
+			setInterval(fetchNotifications, 5000);
 		});
 	</script>
 	

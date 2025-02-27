@@ -91,6 +91,26 @@
 
 				<div class="navbar-collapse collapse">
 					<ul class="navbar-nav navbar-align">
+
+						<li class="nav-item dropdown">
+							<a class="nav-icon dropdown-toggle" href="#" id="alertsDropdown" data-toggle="dropdown">
+								<div class="position-relative">
+									<i class="align-middle" data-feather="bell"></i>
+									<span class="indicator" id="notificationCount">0</span>
+								</div>
+							</a>
+							<div class="dropdown-menu dropdown-menu-lg dropdown-menu-right py-0" aria-labelledby="alertsDropdown">
+								<div class="dropdown-menu-header">
+									<span id="notificationText">No New Notifications</span>
+								</div>
+								<div class="list-group" id="notificationList">
+									<!-- Notifications will be appended here dynamically -->
+								</div>
+								<div class="dropdown-menu-footer">
+									<a href="#" class="text-muted">Show all notifications</a>
+								</div>
+							</div>
+						</li>
 						
 						<li class="nav-item dropdown">
 							<a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#" data-toggle="dropdown">
@@ -352,11 +372,11 @@
 			fetch('/logout', { method: 'POST' })
 			.then(response => {
 				if (response.ok) {
-            		window.location.href = '/';
-		        } else {
-		        	alert("Logout failed");
-		        }
-    		});
+					window.location.href = '/';
+				} else {
+					alert("Logout failed");
+				}
+			});
 		}
 
 		/* Maps : current location & user location */
@@ -406,157 +426,215 @@
 	</script>
 
 	<script>
-		document.addEventListener("DOMContentLoaded", function () {
-			fetch("/api/user-stats")
-			.then(response => response.json())
-			.then(data => {
-				const labels = data.map(item => item.date);
-				const counts = data.map(item => item.count);
+		document.addEventListener('DOMContentLoaded', function() {
+			function fetchNotifications() {
+				fetch('/api/notificationTask')
+				.then(response => response.json())
+				.then(data => {
+					const notificationCount = document.getElementById('notificationCount');
+					notificationCount.textContent = data.length;
 
-				const ctx = document.getElementById("userStatsChart").getContext("2d");
-				new Chart(ctx, {
-					type: "line",
-					data: {
-						labels: labels,
-						datasets: [
-							{
-								label: "Users Registered",
-								data: counts,
-								borderColor: 'rgba(89, 223, 172, 1)',
-								backgroundColor: 'rgba(192, 255, 209, 0.2)',
-								borderWidth: 4,
-								fill: true,
-							}]
-						},
-						options: {
-							maintainAspectRatio: false,
+					const notificationText = document.getElementById('notificationText');
+					if (data.length > 0) {
+						notificationText.textContent = `${data.length} New Notifications`;
+					} else {
+						notificationText.textContent = 'No New Notifications';
+					}
 
-							tooltips: {
-								intersect: false
-							},
-							hover: {
-								intersect: true
-							},
-							plugins: {
-								filler: {
-									propagate: false
-								}
-							},
-							scales: {
-								xAxes: [{
-									reverse: true,
-									gridLines: {
-										color: "rgba(0,0,0,0.05)"
-									}
-								}],
-								yAxes: [{
-									ticks: {
-										suggestedMin: 0,
-										suggestedMax: 10
-									},
-									display: true,
-									borderDash: [5, 5],
-									gridLines: {
-										color: "rgba(0,0,0,0)",
-										fontColor: "#fff"
-									}
-								}]
-							}
-						}
+					const notificationList = document.getElementById('notificationList');
+					notificationList.innerHTML = '';
+					data.forEach(notification => {
+						const notificationItem = document.createElement('a');
+						notificationItem.classList.add('list-group-item');
+						notificationItem.href = notification.rt;
+
+						notificationItem.innerHTML = `
+                    <div class="row g-0 align-items-center">
+                        <div class="col-2">
+                            <i class="text-warning" data-feather="bell"></i>
+                        </div>
+                        <div class="col-10">
+                            <div class="text-dark">Hello <strong>${notification.r}</strong></div>
+                            <div class="text-muted small mt-1">${notification.d} ${notification.t}</div>
+                            <div class="text-muted small mt-1">${notification.dc}</div>
+                        </div>
+                    </div>
+						`;
+
+						notificationList.appendChild(notificationItem);
 					});
-			})
-			.catch(error => console.error("Gagal mengambil data statistik:", error));
+
+					feather.replace();
+				})
+				.catch(error => {
+					console.error('Error fetching notifications:', error);
+				});
+			}
+			fetchNotifications();
+			setInterval(fetchNotifications, 5000);
 		});
 	</script>
 
 	<script>
 		document.addEventListener("DOMContentLoaded", function () {
-			fetch("/api/logdata-stats")
-			.then(response => response.json())
-			.then(data => {
-				let labels 	= data.map(d => d.d);
-				let kData 	= data.map(d => d.k);
-				let iData 	= data.map(d => d.i);
-				let fData 	= data.map(d => d.f);
-				let aData 	= data.map(d => d.a);
+			function fetchChartUserStats() {
+				fetch("/api/user-stats")
+				.then(response => response.json())
+				.then(data => {
+					const labels = data.map(item => item.date);
+					const counts = data.map(item => item.count);
 
-				const ctx = document.getElementById("logStatsChart").getContext("2d");
-				new Chart(ctx, {
-					type: "line",
-					data: {
-						labels: labels,
-						datasets: [
-							{
-								label: "K",
-								data: kData,
-								borderColor: "rgba(61, 204, 249, 1)",
-								backgroundColor: "rgba(56, 221, 244, 0.2)",
-								borderWidth: 4,
-								fill: true,
-							},
-							{
-								label: "I",
-								data: iData,
-								borderColor: 'rgba(89, 223, 172, 1)',
-								backgroundColor: 'rgba(192, 255, 209, 0.2)',
-								borderWidth: 4,
-								fill: true,
-							},
-							{
-								label: "F",
-								data: fData,
-								borderColor: "rgba(61, 204, 249, 1)",
-								backgroundColor: "rgba(56, 221, 244, 0.2)",
-								borderWidth: 4,
-								fill: true,
-							},
-							{
-								label: "A",
-								data: aData,
-								borderColor: 'rgba(89, 223, 172, 1)',
-								backgroundColor: 'rgba(192, 255, 209, 0.2)',
-								borderWidth: 4,
-								fill: true,
-							}]
-						},
-						options: {
-							maintainAspectRatio: false,
-							
-							tooltips: {
-								intersect: false
-							},
-							hover: {
-								intersect: true
-							},
-							plugins: {
-								filler: {
-									propagate: false
-								}
-							},
-							scales: {
-								xAxes: [{
-									reverse: true,
-									gridLines: {
-										color: "rgba(0,0,0,0.05)"
-									}
-								}],
-								yAxes: [{
-									ticks: {
-										suggestedMin: 20,
-										suggestedMax: 100
-									},
-									display: true,
-									borderDash: [5, 5],
-									gridLines: {
-										color: "rgba(0,0,0,0)",
-										fontColor: "#fff"
-									}
+					const ctx = document.getElementById("userStatsChart").getContext("2d");
+					new Chart(ctx, {
+						type: "line",
+						data: {
+							labels: labels,
+							datasets: [
+								{
+									label: "Users Registered",
+									data: counts,
+									borderColor: 'rgba(89, 223, 172, 1)',
+									backgroundColor: 'rgba(192, 255, 209, 0.2)',
+									borderWidth: 4,
+									fill: true,
 								}]
+							},
+							options: {
+								maintainAspectRatio: false,
+
+								tooltips: {
+									intersect: false
+								},
+								hover: {
+									intersect: true
+								},
+								plugins: {
+									filler: {
+										propagate: false
+									}
+								},
+								scales: {
+									xAxes: [{
+										reverse: true,
+										gridLines: {
+											color: "rgba(0,0,0,0.05)"
+										}
+									}],
+									yAxes: [{
+										ticks: {
+											suggestedMin: 0,
+											suggestedMax: 10
+										},
+										display: true,
+										borderDash: [5, 5],
+										gridLines: {
+											color: "rgba(0,0,0,0)",
+											fontColor: "#fff"
+										}
+									}]
+								}
 							}
-						}
-					});
-			})
-			.catch(error => console.error("Gagal mengambil data statistik:", error));
+						});
+				})
+				.catch(error => console.error("Gagal mengambil data statistik:", error));
+			}
+			fetchChartUserStats();
+			setInterval(fetchChartUserStats, 5000);
+		});
+	</script>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			function fetchChartLogDataStats() {
+				fetch("/api/logdata-stats")
+				.then(response => response.json())
+				.then(data => {
+					let labels 	= data.map(d => d.d);
+					let kData 	= data.map(d => d.k);
+					let iData 	= data.map(d => d.i);
+					let fData 	= data.map(d => d.f);
+					let aData 	= data.map(d => d.a);
+
+					const ctx = document.getElementById("logStatsChart").getContext("2d");
+					new Chart(ctx, {
+						type: "line",
+						data: {
+							labels: labels,
+							datasets: [
+								{
+									label: "K",
+									data: kData,
+									borderColor: "rgba(61, 204, 249, 1)",
+									backgroundColor: "rgba(56, 221, 244, 0.2)",
+									borderWidth: 4,
+									fill: true,
+								},
+								{
+									label: "I",
+									data: iData,
+									borderColor: 'rgba(89, 223, 172, 1)',
+									backgroundColor: 'rgba(192, 255, 209, 0.2)',
+									borderWidth: 4,
+									fill: true,
+								},
+								{
+									label: "F",
+									data: fData,
+									borderColor: "rgba(61, 204, 249, 1)",
+									backgroundColor: "rgba(56, 221, 244, 0.2)",
+									borderWidth: 4,
+									fill: true,
+								},
+								{
+									label: "A",
+									data: aData,
+									borderColor: 'rgba(89, 223, 172, 1)',
+									backgroundColor: 'rgba(192, 255, 209, 0.2)',
+									borderWidth: 4,
+									fill: true,
+								}]
+							},
+							options: {
+								maintainAspectRatio: false,
+								
+								tooltips: {
+									intersect: false
+								},
+								hover: {
+									intersect: true
+								},
+								plugins: {
+									filler: {
+										propagate: false
+									}
+								},
+								scales: {
+									xAxes: [{
+										reverse: true,
+										gridLines: {
+											color: "rgba(0,0,0,0.05)"
+										}
+									}],
+									yAxes: [{
+										ticks: {
+											suggestedMin: 20,
+											suggestedMax: 100
+										},
+										display: true,
+										borderDash: [5, 5],
+										gridLines: {
+											color: "rgba(0,0,0,0)",
+											fontColor: "#fff"
+										}
+									}]
+								}
+							}
+						});
+				})
+				.catch(error => console.error("Gagal mengambil data statistik:", error));
+			}
+			fetchChartLogDataStats();
+			setInterval(fetchChartLogDataStats, 5000);
 		});
 	</script>
 
