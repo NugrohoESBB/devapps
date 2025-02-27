@@ -544,7 +544,7 @@
 				.catch(error => console.error("Gagal mengambil data statistik:", error));
 			}
 			fetchChartLoginStats();
-			setInterval(fetchChartLoginStats, 5000);
+			setInterval(fetchChartLoginStats, 60000);
 		});
 	</script>
 
@@ -639,7 +639,7 @@
 				.catch(error => console.error("Gagal mengambil data statistik:", error));
 			}
 			fetchChartLogDataStats();
-			setInterval(fetchChartLogDataStats, 5000);
+			setInterval(fetchChartLogDataStats, 60000);
 		});
 	</script>
 
