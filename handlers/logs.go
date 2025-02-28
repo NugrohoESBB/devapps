@@ -97,7 +97,7 @@ func AddLogDataHandler(w http.ResponseWriter, r *http.Request) {
 
 // Handler GET JSON - For JPL Chart Dashboard
 func GetLogDataStatsHandler(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Query("SELECT d, k, i, f, a FROM logs ORDER BY d ASC LIMIT 7")
+	rows, err := db.Query("SELECT d, k, i, f, a FROM logs ORDER BY d DESC LIMIT 7")
 	if err != nil {
 		http.Error(w, "Gagal mengambil data log", http.StatusInternalServerError)
 		return
@@ -142,7 +142,7 @@ func parseFloat(value string) float64 {
 
 // Handler GET JSON - For User Login Chart Dashboard
 func GetLoginStatsHandler(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Query("SELECT DATE(d) AS date, COUNT(*) AS count FROM logsessions GROUP BY DATE(d) ORDER BY date ASC LIMIT 7")
+	rows, err := db.Query("SELECT DATE(d) AS date, COUNT(*) AS count FROM logsessions GROUP BY DATE(d) ORDER BY date DESC LIMIT 7")
 	if err != nil {
 		http.Error(w, "Gagal mengambil statistik pengguna", http.StatusInternalServerError)
 		return

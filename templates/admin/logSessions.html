@@ -171,7 +171,7 @@
                                                     <td>{{.D}}</td>
                                                     <td>{{.T}}</td>
                                                     <td>{{.TN}}</td>
-                                                    <td><span class="badge bg-success">{{.S}}</span></td>
+                                                    <td><span class="badge" style="background-color: rgb(46, 134, 171);">{{.S}}</span></td>
                                                 </tr>
                                                 {{end}}
                                             </tbody>
@@ -311,10 +311,10 @@
 	        	if (cols.length > 0) {
 	        		let rowData = {
 	        			id: cols[0].innerText,
-	        			timestamp: cols[1].innerText,
-	        			jarak: cols[2].innerText,
-	        			pompa: cols[3].innerText,
-	        			luas: cols[4].innerText
+	        			d: 	cols[1].innerText,
+	        			t: 	cols[2].innerText,
+	        			tn: cols[3].innerText,
+	        			s: 	cols[4].innerText
 	        		};
 	        		jsonData.push(rowData);
 	        	}
@@ -331,7 +331,7 @@
 
 	    function exportToExcel() {
 	    	let table = document.getElementById("dataTable");
-	    	let wb = XLSX.utils.table_to_book(table, {sheet: "Information Log"});
+	    	let wb = XLSX.utils.table_to_book(table, {sheet: "Sessions Log"});
 	    	let wbout = XLSX.write(wb, {bookType: "xlsx", type: "binary"});
 
 	    	function s2ab(s) {

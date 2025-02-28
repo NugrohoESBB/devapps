@@ -178,9 +178,9 @@
 												<td>{{.N}}</td>
 												<td>
 													{{if eq .R "admin"}}
-													<span class="badge bg-success">{{.R}}</span>
+													<span class="badge" style="background-color: rgb(150, 107, 157);">{{.R}}</span>
 													{{else}}
-													<span class="badge bg-info">{{.R}}</span>
+													<span class="badge" style="background-color: rgb(201, 134, 134);">{{.R}}</span>
 													{{end}}
 												</td>
 												<td>{{.E}}</td>
@@ -276,10 +276,14 @@
 				if (cols.length > 0) {
 					let rowData = {
 						id: cols[0].innerText,
-						timestamp: cols[1].innerText,
-						jarak: cols[2].innerText,
-						pompa: cols[3].innerText,
-						luas: cols[4].innerText
+						d:  cols[1].innerText,
+						t:  cols[2].innerText,
+						n:  cols[3].innerText,
+						r:  cols[4].innerText,
+						e:  cols[5].innerText,
+						lt: cols[6].innerText,
+						ln: cols[7].innerText,
+						p:  cols[8].innerText
 					};
 					jsonData.push(rowData);
 				}
