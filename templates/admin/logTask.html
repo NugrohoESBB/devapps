@@ -214,7 +214,7 @@
 												<i class="far fa-fw fa-bell"></i>
 											</div>
 											<div class="alert-message">
-												<strong name="id" value="{{.ID}}">Hello {{.R}}!</strong> <br>{{.DC}}
+												<strong name="id" value="{{.ID}}">Hello {{.R}}! <br>{{.D}} {{.T}}</strong> <br><br>{{.DC}}
 											</div>
 										</div>
 										{{else}}
@@ -226,7 +226,7 @@
 												<i class="far fa-fw fa-bell"></i>
 											</div>
 											<div class="alert-message">
-												<strong name="id" value="{{.ID}}">Hello {{.R}}!</strong> <br>{{.DC}}
+												<strong name="id" value="{{.ID}}">Hello {{.R}}! <br>{{.D}} {{.T}}</strong> <br><br>{{.DC}}
 											</div>
 										</div>
 										{{end}}
@@ -343,8 +343,6 @@
 	<!-- Page level plugins -->
 	<script src="static/vendor/chart.js/Chart.min.js"></script>
 	<script src="static/vendor/jquery/moment.min.js"></script>
-
-	<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 
 	<script type="text/javascript">
 		$(document).ready(function() {
