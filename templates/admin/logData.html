@@ -161,8 +161,8 @@
 												<th>D</th>
 												<th>T</th>
 												<th>N</th>
-												<th>K</th>
 												<th>L</th>
+												<th>K</th>
 												<th>I</th>
 												<th>F</th>
 												<th>A</th>
@@ -175,8 +175,8 @@
 												<td>{{.D}}</td>
 												<td>{{.T}}</td>
 												<td>{{.N}}</td>
-												<td>{{.K}}</td>
 												<td>{{.L}}</td>
+												<td>{{.K}}</td>
 												<td>{{.I}}</td>
 												<td>{{.F}}</td>
 												<td>{{.A}}</td>
@@ -222,7 +222,7 @@
 				<div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
 				<div class="modal-footer">
 					<button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-					<a class="btn btn-primary" href="/">Logout</a>
+					<a class="btn btn-primary" href="javascript:void(0);" onclick="logout()">Logout</a>
 				</div>
 			</div>
 		</div>
@@ -256,6 +256,18 @@
 		});
 
 		document.getElementById("year").textContent = new Date().getFullYear();
+
+		/* Logout Session */
+		function logout() {
+			fetch('/logout', { method: 'POST' })
+			.then(response => {
+				if (response.ok) {
+					window.location.href = '/';
+				} else {
+					alert("Logout failed");
+				}
+			});
+		}
 	</script>
 
 	<script>

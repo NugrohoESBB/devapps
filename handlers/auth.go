@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"context"
 	"time"
+	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -29,7 +29,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&u)
 
 	var storedPassword, role string
-	err := db.QueryRow("SELECT id, p, r FROM users WHERE n = ?", u.N).Scan(&u.ID, &storedPassword, &role)
+	var userID int
+	err := db.QueryRow("SELECT id, p, r FROM users WHERE n = ?", u.N).Scan(&userID, &storedPassword, &role)
 	if err != nil {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		return
@@ -41,10 +42,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessionToken := fmt.Sprintf("session-%d-%d", u.ID, time.Now().Unix())
+	// Session token
+	sessionToken := fmt.Sprintf("session-%d-%d", userID, time.Now().Unix())
 
-	_, err = db.Exec("INSERT INTO sessions (u_id, tn, r, t) VALUES (?, ?, ?, NOW())", u.ID, sessionToken, role)
-	_, err = db.Exec("INSERT INTO logsessions (tn, s) VALUES (?, ?)", sessionToken, "Login")
+	_, err = db.Exec("INSERT INTO sessions (u_id, tn, r, t) VALUES (?, ?, ?, NOW())", userID, sessionToken, role)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
@@ -55,10 +56,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Name:     "session_token",
 		Value:    sessionToken,
 		Expires:  time.Now().Add(24 * time.Hour),
+		Path:     "/",
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteNoneMode,
+		SameSite: http.SameSiteLaxMode,
 	})
+
+	// Debugging cookie
+	fmt.Println("Session Token:", sessionToken)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
@@ -100,9 +105,10 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 // AuthMiddleware: Middleware to validate session token
 func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Ambil cookie dari request
 		cookie, err := r.Cookie("session_token")
 		if err != nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			http.Error(w, "Unauthorized: No session token", http.StatusUnauthorized)
 			return
 		}
 
@@ -110,13 +116,17 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		var role string
 		err = db.QueryRow("SELECT u_id, r FROM sessions WHERE tn = ?", cookie.Value).Scan(&userID, &role)
 		if err != nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			http.Error(w, "Unauthorized: Invalid session", http.StatusUnauthorized)
+			fmt.Println("Invalid session token:", cookie.Value)
 			return
 		}
 
-		ctx := r.Context()
-		ctx = context.WithValue(ctx, "r", role)
+		// Debugging role
+		//fmt.Println("User ID:", userID, "Role:", role)
 
+		ctx := context.WithValue(r.Context(), "r", role)
 		next(w, r.WithContext(ctx))
 	}
 }
+
+

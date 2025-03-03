@@ -143,6 +143,59 @@
 					</div>
 
 					<div class="row">
+						<div class="card shadow mb-4">
+							<div class="card flex-fill shadow mb-4">
+								<div class="card-header py-3 d-flex justify-content-between align-items-center">
+									<h5 class="card-title mb-0">Real-Time Data</h5>
+								</div>
+								<div class="card-body">
+									<div class="table-responsive">
+										<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+											<thead>
+												<tr>
+													<th>ID</th>
+													<th>D</th>
+													<th>T</th>
+													<th>R</th>
+													<th>RT</th>
+													<th>S</th>
+												</tr>
+											</thead>
+											<tbody>
+												{{range .}}
+												<tr>
+													<td>{{.ID}}</td>
+													<td>{{.D}}</td>
+													<td>{{.T}}</td>
+													<td>
+														{{if eq .R "admin"}}
+														<span class="badge" style="background-color: rgb(150, 107, 157);">{{.R}}</span>
+														{{else}}
+														<span class="badge" style="background-color: rgb(201, 134, 134);">{{.R}}</span>
+														{{end}}
+													</td>
+													<td>{{.RT}}</td>
+													<td>
+														{{if eq .S "done"}}
+														<span class="badge" style="background-color: rgb(0, 129, 175);">{{.S}}</span>
+														{{else if eq .S "pending"}}
+														<span class="badge" style="background-color: rgb(119, 182, 234);">{{.S}}</span>
+														{{else}}
+														<span class="badge" style="background-color: rgb(150, 107, 157);">{{.S}}</span>
+														{{end}}
+													</td>
+												</tr>
+												{{end}}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</div>
+
+					<div class="row">
 						<div class="col-12 col-lg-6">
 							<div class="card">
 								<div class="card-header">
@@ -193,13 +246,13 @@
 								<div class="card-body">
 									<form action="/addLogTask" method="POST">
 										<div class="mb-3 row">
-											<label class="col-form-label col-sm-2 text-sm-right">Task</label>
+											<label for="dc" class="col-form-label col-sm-2 text-sm-right">Task</label>
 											<div class="col-sm-10">
-												<textarea id="dc" name="dc" class="form-control" placeholder="Textarea" rows="3"></textarea>
+												<textarea id="dc" name="dc" class="form-control" placeholder="Enter Text" rows="3"></textarea>
 											</div>
 										</div>
 										<div class="mb-3 row">
-											<label class="col-form-label col-sm-2 text-sm-right" for="inputState">Role</label>
+											<label for="r" class="col-form-label col-sm-2 text-sm-right">Role</label>
 											<div class="col-sm-10">
 												<select id="r" name="r" class="form-control" required>
 													<option value="" disabled selected>Choose...</option>
@@ -209,7 +262,7 @@
 											</div>
 										</div>
 										<div class="mb-3 row">
-											<label class="col-form-label col-sm-2 text-sm-right" for="inputState">Routes</label>
+											<label for="rt" class="col-form-label col-sm-2 text-sm-right">Routes</label>
 											<div class="col-sm-10">
 												<select id="rt" name="rt" class="form-control" required>
 													<option value="" disabled selected>Choose...</option>
@@ -233,6 +286,8 @@
 						</div>
 
 					</div>
+
+
 				</div>
 			</main>
 
@@ -292,7 +347,23 @@
 	<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 
 	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#dataTable').DataTable();
+		});
+
 		document.getElementById("year").textContent = new Date().getFullYear();
+
+		/* Logout Session */
+		function logout() {
+			fetch('/logout', { method: 'POST' })
+			.then(response => {
+				if (response.ok) {
+					window.location.href = '/';
+				} else {
+					alert("Logout failed");
+				}
+			});
+		}
 
 		/* Delete Task Log */
 		function deleteTask(id) {
@@ -303,8 +374,7 @@
 			})
 			.then(response => {
 				if (response.ok) {
-				// Hapus elemen alert dari DOM
-					document.getElementById("alert-" + id).remove();
+					document.getElementById("alert-" + id);
 				} else {
 					alert("Gagal menghapus data");
 				}

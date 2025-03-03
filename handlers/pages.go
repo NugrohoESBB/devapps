@@ -150,7 +150,7 @@ func LogTasksHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := db.Query("SELECT id, r, dc, rt FROM logtasks ORDER BY id DESC")
+	rows, err := db.Query("SELECT id, d, t, r, dc, rt, s FROM logtasks ORDER BY id DESC")
 	if err != nil {
 		http.Error(w, "Failed to fetch users data", http.StatusInternalServerError)
 		return
@@ -160,7 +160,7 @@ func LogTasksHandler(w http.ResponseWriter, r *http.Request) {
 	var task_logs []APILogTasks
 	for rows.Next() {
 		var u APILogTasks
-		rows.Scan(&u.ID, &u.R, &u.DC, &u.RT)
+		rows.Scan(&u.ID, &u.D, &u.T, &u.R, &u.DC, &u.RT, &u.S)
 		task_logs = append(task_logs, u)
 	}
 

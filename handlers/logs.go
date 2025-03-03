@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"database/sql"
 	"net/http"
 	"strconv"
 )
@@ -33,6 +34,7 @@ type APILogTasks struct {
 	R 	string `json:"r"`
 	DC 	string `json:"dc"`
 	RT 	string `json:"rt"`
+	S 	string `json:"s"`
 }
 
 // ======================================== LOGS DATA
@@ -247,7 +249,22 @@ func DeleteTasksHandler(w http.ResponseWriter, r *http.Request) {
 
 // API Handler - Notifications From Task Log
 func GetNotificationsHandler(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Query("SELECT id, d, t, r, dc, rt FROM logtasks ORDER BY id DESC")
+	// Coba ambil role dari context
+	role, ok := r.Context().Value("r").(string)
+	if !ok {
+		http.Error(w, "Unauthorized: Role not found", http.StatusUnauthorized)
+		return
+	}
+
+	var rows *sql.Rows
+	var err error
+
+	if role == "admin" {
+		rows, err = db.Query("SELECT id, d, t, r, dc, rt FROM logtasks ORDER BY id DESC")
+	} else {
+		rows, err = db.Query("SELECT id, d, t, r, dc, rt FROM logtasks WHERE r = 'user' ORDER BY id DESC")
+	}
+
 	if err != nil {
 		http.Error(w, "Gagal mengambil data", http.StatusInternalServerError)
 		return
@@ -268,3 +285,4 @@ func GetNotificationsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(notif)
 }
+

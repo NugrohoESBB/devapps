@@ -45,7 +45,7 @@ func main() {
 	// Task API
 	http.HandleFunc("/addLogTask", handlers.AddLogTaskHandler)
 	http.HandleFunc("/deleteTask", handlers.DeleteTasksHandler)
-	http.HandleFunc("/api/notificationTask", handlers.GetNotificationsHandler)
+	http.HandleFunc("/api/notificationTask", handlers.AuthMiddleware(handlers.GetNotificationsHandler))
 
 	// Serve static files
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))

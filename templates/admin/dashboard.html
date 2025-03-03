@@ -433,7 +433,7 @@
 	<script>
 		document.addEventListener('DOMContentLoaded', function() {
 			function fetchNotifications() {
-				fetch('/api/notificationTask')
+				fetch('/api/notificationTask', { credentials: 'include' })
 				.then(response => response.json())
 				.then(data => {
 					const notificationCount = document.getElementById('notificationCount');
