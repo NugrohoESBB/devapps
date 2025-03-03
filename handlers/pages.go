@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"html/template"
+	"database/sql"
 	"net/http"
 )
 
@@ -61,14 +62,14 @@ func DashboardHandler_User(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	var u_users []User
+	var ds_users []User
 	for rows.Next() {
 		var u User
 		rows.Scan(&u.ID, &u.D, &u.T, &u.N, &u.E, &u.LT, &u.LN)
-		u_users = append(u_users, u)
+		ds_users = append(ds_users, u)
 	}
 
-	tmpl.Execute(w, u_users)
+	tmpl.Execute(w, ds_users)
 }
 
 func LogDataHandler(w http.ResponseWriter, r *http.Request) {
@@ -165,6 +166,42 @@ func LogTasksHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tmpl.Execute(w, task_logs)
+}
+
+func LogTasksHandler_User(w http.ResponseWriter, r *http.Request) {
+	var rows *sql.Rows
+	var err error
+
+	tmpl, err := template.ParseFiles("templates/user/logTaskUsers.html")
+	if err != nil {
+		http.Error(w, "Failed to load template", http.StatusInternalServerError)
+		return
+	}
+
+	role, ok := r.Context().Value("r").(string)
+	if !ok {
+		http.Error(w, "Unauthorized: Role not found", http.StatusUnauthorized)
+		return
+	}
+
+	if role == "user" {
+		rows, err = db.Query("SELECT id, d, t, r, dc, rt, s FROM logtasks WHERE r = 'user' ORDER BY id DESC")
+	}
+
+	if err != nil {
+		http.Error(w, "Failed to fetch users data", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var task_logs_users []APILogTasks
+	for rows.Next() {
+		var u APILogTasks
+		rows.Scan(&u.ID, &u.D, &u.T, &u.R, &u.DC, &u.RT, &u.S)
+		task_logs_users = append(task_logs_users, u)
+	}
+
+	tmpl.Execute(w, task_logs_users)
 }
 
 func InvoiceHandler(w http.ResponseWriter, r *http.Request) {

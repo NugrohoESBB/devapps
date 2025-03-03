@@ -8,7 +8,7 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 
-	<title>Task Log</title>
+	<title>Task Log User</title>
 	<link rel="icon" type="image/png" href="static/images/icons/favicon.ico"/>
 
 	<!-- Custom styles -->
@@ -22,7 +22,7 @@
 	<div class="wrapper">
 		<nav id="sidebar" class="sidebar">
 			<div class="sidebar-content js-simplebar">
-				<a class="sidebar-brand" href="/dashboard">
+				<a class="sidebar-brand" href="/dashboard-user">
 					<span class="align-middle">Enigma</span>
 				</a>
 
@@ -32,8 +32,14 @@
 					</li>
 
 					<li class="sidebar-item">
-						<a class="sidebar-link" href="/dashboard">
+						<a class="sidebar-link" href="/dashboard-user">
 							<i class="align-middle" data-feather="sliders"></i> <span class="align-middle">Dashboard</span>
+						</a>
+					</li>
+
+					<li class="sidebar-item active">
+						<a class="sidebar-link" href="/logtasks-user">
+							<i class="align-middle" data-feather="mail"></i> <span class="align-middle">Task</span>
 						</a>
 					</li>
 
@@ -42,7 +48,7 @@
 						Activity Log
 					</li>
 
-					<li class="sidebar-item">
+					<!-- <li class="sidebar-item">
 						<a class="sidebar-link" href="/logs">
 							<i class="align-middle" data-feather="activity"></i> <span class="align-middle">Logs Data</span>
 						</a>
@@ -74,7 +80,7 @@
 						<a class="sidebar-link" href="/invoice">
 							<i class="align-middle" data-feather="credit-card"></i> <span class="align-middle">Invoice</span>
 						</a>
-					</li>
+					</li> -->
 
 				</ul>
 				
@@ -138,7 +144,7 @@
 
 					<div class="row mb-2 mb-xl-3">
 						<div class="col-auto d-none d-sm-block">
-							<h3><strong>Task</strong> Dashboard</h3>
+							<h3><strong>Task User</strong> Dashboard</h3>
 						</div>
 					</div>
 
@@ -153,13 +159,13 @@
 										<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
 											<thead>
 												<tr>
-													<th>ID</th>
-													<th>D</th>
-													<th>T</th>
-													<th>R</th>
-													<th>RT</th>
-													<th>S</th>
-													<th>V</th>
+													<th>No Tugas</th>
+													<th>Tanggal</th>
+													<th>Waktu</th>
+													<th>Role</th>
+													<th>Routes</th>
+													<th>Status</th>
+													<th>Validation</th>
 												</tr>
 											</thead>
 											<tbody>
@@ -186,11 +192,15 @@
 														{{end}}
 													</td>
 													<td class="table-action">
-														{{if or (eq .S "pending") (eq .S "failed") (eq .S "")}}
-															<a href="/updateStatus?id={{.ID}}&status=done">
+														{{if eq .S ""}}
+															<a href="/updateLogtaskStatus?id={{.ID}}&status=pending">
 																<i class="align-middle" data-feather="clock"></i>
 															</a>
-															<a href="/updateStatus?id={{.ID}}&status=failed">
+															<a href="/updateLogtaskStatus?id={{.ID}}&status=failed">
+																<i class="align-middle" data-feather="trash"></i>
+															</a>
+														{{else if eq .S "pending"}}
+															<a href="/updateLogtaskStatus?id={{.ID}}&status=failed">
 																<i class="align-middle" data-feather="trash"></i>
 															</a>
 														{{end}}
@@ -207,98 +217,6 @@
 
 					</div>
 
-					<div class="row">
-						<div class="col-12 col-lg-6">
-							<div class="card">
-								<div class="card-header">
-									<h5 class="card-title">List All Tasks</h5>
-									<h6 class="card-subtitle text-muted">Daily Task.</h6>
-								</div>
-								<div class="card-body">
-									<div class="mb-3">
-										{{range .}}
-										{{if eq .R "admin"}}
-											<div class="alert alert-success alert-dismissible" role="alert" id="alert-{{.ID}}">
-												<button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="deleteTask({{.ID}})">
-													<span aria-hidden="true">&times;</span>
-												</button>
-												<div class="alert-icon">
-													<i class="far fa-fw fa-bell"></i>
-												</div>
-												<div class="alert-message">
-													<strong name="id" value="{{.ID}}">Hello {{.R}}! <br>{{.D}} {{.T}}</strong> <br><br>{{.DC}}
-												</div>
-											</div>
-										{{else}}
-											<div class="alert alert-primary alert-dismissible" role="alert" id="alert-{{.ID}}">
-												<button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="deleteTask({{.ID}})">
-													<span aria-hidden="true">&times;</span>
-												</button>
-												<div class="alert-icon">
-													<i class="far fa-fw fa-bell"></i>
-												</div>
-												<div class="alert-message">
-													<strong name="id" value="{{.ID}}">Hello {{.R}}! <br>{{.D}} {{.T}}</strong> <br><br>{{.DC}}
-												</div>
-											</div>
-										{{end}}
-										{{end}}
-
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<div class="col-12 col-xl-6">
-							<div class="card">
-								<div class="card-header">
-									<h5 class="card-title">Input Tasks</h5>
-									<h6 class="card-subtitle text-muted">Input task for all user.</h6>
-								</div>
-								<div class="card-body">
-									<form action="/addLogTask" method="POST">
-										<div class="mb-3 row">
-											<label for="dc" class="col-form-label col-sm-2 text-sm-right">Task</label>
-											<div class="col-sm-10">
-												<textarea id="dc" name="dc" class="form-control" placeholder="Enter Text" rows="3"></textarea>
-											</div>
-										</div>
-										<div class="mb-3 row">
-											<label for="r" class="col-form-label col-sm-2 text-sm-right">Role</label>
-											<div class="col-sm-10">
-												<select id="r" name="r" class="form-control" required>
-													<option value="" disabled selected>Choose...</option>
-													<option value="admin">Admin</option>
-													<option value="user">User</option>
-												</select>
-											</div>
-										</div>
-										<div class="mb-3 row">
-											<label for="rt" class="col-form-label col-sm-2 text-sm-right">Routes</label>
-											<div class="col-sm-10">
-												<select id="rt" name="rt" class="form-control" required>
-													<option value="" disabled selected>Choose...</option>
-													<option value="/dashboard">Dashboard</option>
-													<option value="/logs">Logs</option>
-													<option value="/logsessions">Sessions Log</option>
-													<option value="/informationLog">Information Log</option>
-													<option value="/logtasks">Tasks Log</option>
-													<option value="/invoice">Invoice</option>
-												</select>
-											</div>
-										</div>
-										<div class="mb-3 row">
-											<div class="col-sm-10 ml-sm-auto">
-												<button type="submit" class="btn btn-primary">Submit</button>
-											</div>
-										</div>
-									</form>
-								</div>
-							</div>
-						</div>
-
-					</div>
-
 
 				</div>
 			</main>
@@ -308,7 +226,7 @@
 					<div class="row text-muted">
 						<div class="col-6 text-left">
 							<p class="mb-0">
-								<a href="/dashboard" class="text-muted"><strong>Copyright &copy; Nugroho Eko S Batubara - <span id="year"></span></strong></a>
+								<a href="/dashboard-user" class="text-muted"><strong>Copyright &copy; Nugroho Eko S Batubara - <span id="year"></span></strong></a>
 							</p>
 						</div>
 					</div>
@@ -373,23 +291,6 @@
 					alert("Logout failed");
 				}
 			});
-		}
-
-		/* Delete Task Log */
-		function deleteTask(id) {
-			fetch('/deleteTask', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-				body: 'id=' + id
-			})
-			.then(response => {
-				if (response.ok) {
-					document.getElementById("alert-" + id);
-				} else {
-					alert("Gagal menghapus data");
-				}
-			})
-			.catch(error => console.error('Error:', error));
 		}
 	</script>
 

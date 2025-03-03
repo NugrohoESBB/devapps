@@ -228,7 +228,6 @@ func DeleteTasksHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Ambil ID dari form
 	idStr := r.FormValue("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -236,20 +235,77 @@ func DeleteTasksHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Eksekusi query DELETE
 	_, err = db.Exec("DELETE FROM logtasks WHERE id = ?", id)
 	if err != nil {
 		http.Error(w, "Gagal menghapus data", http.StatusInternalServerError)
 		return
 	}
 
-	// Berikan respons sukses
 	w.WriteHeader(http.StatusOK)
+}
+
+// API Handler - Update JSON or FORM Data
+func UpdateTaskStatusHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost && r.Method != http.MethodGet {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	taskID := r.URL.Query().Get("id")
+	newStatus := r.URL.Query().Get("status")
+
+	if r.Method == http.MethodPost {
+		taskID = r.FormValue("id")
+		newStatus = r.FormValue("status")
+	}
+
+	// Validation
+	if taskID == "" || newStatus == "" {
+		http.Error(w, "Missing parameters", http.StatusBadRequest)
+		return
+	}
+
+	_, err := db.Exec("UPDATE logtasks SET s = ? WHERE id = ?", newStatus, taskID)
+	if err != nil {
+		http.Error(w, "Failed to update task status", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/logtasks", http.StatusSeeOther)
+}
+
+// API Handler - Update JSON or FORM Data User
+func UpdateTaskStatusHandler_User(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost && r.Method != http.MethodGet {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	taskID := r.URL.Query().Get("id")
+	newStatus := r.URL.Query().Get("status")
+
+	if r.Method == http.MethodPost {
+		taskID = r.FormValue("id")
+		newStatus = r.FormValue("status")
+	}
+
+	// Validation
+	if taskID == "" || newStatus == "" {
+		http.Error(w, "Missing parameters", http.StatusBadRequest)
+		return
+	}
+
+	_, err := db.Exec("UPDATE logtasks SET s = ? WHERE id = ?", newStatus, taskID)
+	if err != nil {
+		http.Error(w, "Failed to update task status", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/logtasks-user", http.StatusSeeOther)
 }
 
 // API Handler - Notifications From Task Log
 func GetNotificationsHandler(w http.ResponseWriter, r *http.Request) {
-	// Coba ambil role dari context
 	role, ok := r.Context().Value("r").(string)
 	if !ok {
 		http.Error(w, "Unauthorized: Role not found", http.StatusUnauthorized)
