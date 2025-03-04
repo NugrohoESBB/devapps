@@ -189,7 +189,7 @@
 													<td class="table-action">
 														{{if or (eq .S "pending") (eq .S "failed") (eq .S "")}}
 															<a href="/updateStatus?id={{.ID}}&status=done">
-																<i class="align-middle" data-feather="clock"></i>
+																<i class="align-middle" data-feather="check-square"></i>
 															</a>
 															<a href="/updateStatus?id={{.ID}}&status=failed">
 																<i class="align-middle" data-feather="trash"></i>
