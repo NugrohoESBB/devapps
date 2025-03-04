@@ -193,14 +193,14 @@
 													</td>
 													<td class="table-action">
 														{{if eq .S ""}}
-															<a href="/updateLogtaskStatus?id={{.ID}}&status=pending">
+															<a href="/updateStatus?id={{.ID}}&status=pending">
 																<i class="align-middle" data-feather="check-square"></i>
 															</a>
-															<a href="/updateLogtaskStatus?id={{.ID}}&status=failed">
+															<a href="/updateStatus?id={{.ID}}&status=failed">
 																<i class="align-middle" data-feather="trash"></i>
 															</a>
 														{{else if eq .S "pending"}}
-															<a href="/updateLogtaskStatus?id={{.ID}}&status=failed">
+															<a href="/updateStatus?id={{.ID}}&status=failed">
 																<i class="align-middle" data-feather="trash"></i>
 															</a>
 														{{end}}

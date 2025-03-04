@@ -25,51 +25,57 @@ func RegisHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DashboardHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("templates/admin/dashboard.html")
-	if err != nil {
-		http.Error(w, "Failed to load template", http.StatusInternalServerError)
+	role, ok := r.Context().Value("r").(string)
+	if !ok {
+		http.Error(w, "Unauthorized: Role not found", http.StatusUnauthorized)
 		return
 	}
 
-	rows, err := db.Query("SELECT id, d, t, tn, s FROM logsessions ORDER BY id DESC LIMIT 5")
-	if err != nil {
-		http.Error(w, "Failed to fetch users data", http.StatusInternalServerError)
-		return
+	if role == "admin" {
+		tmpl, err := template.ParseFiles("templates/admin/dashboard.html")
+		if err != nil {
+			http.Error(w, "Failed to load template", http.StatusInternalServerError)
+			return
+		}
+
+		rows, err := db.Query("SELECT id, d, t, tn, s FROM logsessions ORDER BY id DESC LIMIT 5")
+		if err != nil {
+			http.Error(w, "Failed to fetch users data", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		var dash_logs []APILogSessions
+		for rows.Next() {
+			var u APILogSessions
+			rows.Scan(&u.ID, &u.D, &u.T, &u.TN, &u.S)
+			dash_logs = append(dash_logs, u)
+		}
+
+		tmpl.Execute(w, dash_logs)
+	} else {
+		tmpl, err := template.ParseFiles("templates/user/dashboardUsers.html")
+		if err != nil {
+			http.Error(w, "Failed to load template", http.StatusInternalServerError)
+			return
+		}
+
+		rows, err := db.Query("SELECT id, d, t, n, e, lt, ln FROM users LIMIT 5")
+		if err != nil {
+			http.Error(w, "Failed to fetch users data", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		var ds_users []User
+		for rows.Next() {
+			var u User
+			rows.Scan(&u.ID, &u.D, &u.T, &u.N, &u.E, &u.LT, &u.LN)
+			ds_users = append(ds_users, u)
+		}
+
+		tmpl.Execute(w, ds_users)
 	}
-	defer rows.Close()
-
-	var dash_logs []APILogSessions
-	for rows.Next() {
-		var u APILogSessions
-		rows.Scan(&u.ID, &u.D, &u.T, &u.TN, &u.S)
-		dash_logs = append(dash_logs, u)
-	}
-
-	tmpl.Execute(w, dash_logs)
-}
-
-func DashboardHandler_User(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("templates/user/dashboardUsers.html")
-	if err != nil {
-		http.Error(w, "Failed to load template", http.StatusInternalServerError)
-		return
-	}
-
-	rows, err := db.Query("SELECT id, d, t, n, e, lt, ln FROM users LIMIT 5")
-	if err != nil {
-		http.Error(w, "Failed to fetch users data", http.StatusInternalServerError)
-		return
-	}
-	defer rows.Close()
-
-	var ds_users []User
-	for rows.Next() {
-		var u User
-		rows.Scan(&u.ID, &u.D, &u.T, &u.N, &u.E, &u.LT, &u.LN)
-		ds_users = append(ds_users, u)
-	}
-
-	tmpl.Execute(w, ds_users)
 }
 
 func LogDataHandler(w http.ResponseWriter, r *http.Request) {
@@ -145,63 +151,60 @@ func InformationHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func LogTasksHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("templates/admin/logTask.html")
-	if err != nil {
-		http.Error(w, "Failed to load template", http.StatusInternalServerError)
-		return
-	}
-
-	rows, err := db.Query("SELECT id, d, t, r, dc, rt, s FROM logtasks ORDER BY id DESC")
-	if err != nil {
-		http.Error(w, "Failed to fetch users data", http.StatusInternalServerError)
-		return
-	}
-	defer rows.Close()
-
-	var task_logs []APILogTasks
-	for rows.Next() {
-		var u APILogTasks
-		rows.Scan(&u.ID, &u.D, &u.T, &u.R, &u.DC, &u.RT, &u.S)
-		task_logs = append(task_logs, u)
-	}
-
-	tmpl.Execute(w, task_logs)
-}
-
-func LogTasksHandler_User(w http.ResponseWriter, r *http.Request) {
-	var rows *sql.Rows
-	var err error
-
-	tmpl, err := template.ParseFiles("templates/user/logTaskUsers.html")
-	if err != nil {
-		http.Error(w, "Failed to load template", http.StatusInternalServerError)
-		return
-	}
-
 	role, ok := r.Context().Value("r").(string)
 	if !ok {
 		http.Error(w, "Unauthorized: Role not found", http.StatusUnauthorized)
 		return
 	}
 
-	if role == "user" {
+	if role == "admin" {
+		tmpl, err := template.ParseFiles("templates/admin/logTask.html")
+		if err != nil {
+			http.Error(w, "Failed to load template", http.StatusInternalServerError)
+			return
+		}
+
+		rows, err := db.Query("SELECT id, d, t, r, dc, rt, s FROM logtasks ORDER BY id DESC")
+		if err != nil {
+			http.Error(w, "Failed to fetch users data", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		var task_logs []APILogTasks
+		for rows.Next() {
+			var u APILogTasks
+			rows.Scan(&u.ID, &u.D, &u.T, &u.R, &u.DC, &u.RT, &u.S)
+			task_logs = append(task_logs, u)
+		}
+
+		tmpl.Execute(w, task_logs)
+	} else {
+		var rows *sql.Rows
+		var err error
+
+		tmpl, err := template.ParseFiles("templates/user/logTaskUsers.html")
+		if err != nil {
+			http.Error(w, "Failed to load template", http.StatusInternalServerError)
+			return
+		}
+
 		rows, err = db.Query("SELECT id, d, t, r, dc, rt, s FROM logtasks WHERE r = 'user' ORDER BY id DESC")
-	}
+		if err != nil {
+			http.Error(w, "Failed to fetch users data", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
 
-	if err != nil {
-		http.Error(w, "Failed to fetch users data", http.StatusInternalServerError)
-		return
-	}
-	defer rows.Close()
+		var task_logs_users []APILogTasks
+		for rows.Next() {
+			var u APILogTasks
+			rows.Scan(&u.ID, &u.D, &u.T, &u.R, &u.DC, &u.RT, &u.S)
+			task_logs_users = append(task_logs_users, u)
+		}
 
-	var task_logs_users []APILogTasks
-	for rows.Next() {
-		var u APILogTasks
-		rows.Scan(&u.ID, &u.D, &u.T, &u.R, &u.DC, &u.RT, &u.S)
-		task_logs_users = append(task_logs_users, u)
+		tmpl.Execute(w, task_logs_users)
 	}
-
-	tmpl.Execute(w, task_logs_users)
 }
 
 func InvoiceHandler(w http.ResponseWriter, r *http.Request) {

@@ -28,8 +28,8 @@ func main() {
 	http.HandleFunc("/invoice", handlers.AuthMiddleware(handlers.InvoiceHandler))
 
 	// Protected pages - User
-	http.HandleFunc("/dashboard-user", handlers.AuthMiddleware(handlers.DashboardHandler_User))
-	http.HandleFunc("/logtasks-user", handlers.AuthMiddleware(handlers.LogTasksHandler_User))
+	http.HandleFunc("/dashboard-user", handlers.AuthMiddleware(handlers.DashboardHandler))
+	http.HandleFunc("/logtasks-user", handlers.AuthMiddleware(handlers.LogTasksHandler))
 
 	// =============== ALL API ===============
 	// User API
@@ -46,8 +46,7 @@ func main() {
 	// Task API
 	http.HandleFunc("/addLogTask", handlers.AddLogTaskHandler)
 	http.HandleFunc("/deleteTask", handlers.DeleteTasksHandler)
-	http.HandleFunc("/updateStatus", handlers.UpdateTaskStatusHandler)
-	http.HandleFunc("/updateLogtaskStatus", handlers.UpdateTaskStatusHandler_User)
+	http.HandleFunc("/updateStatus", handlers.AuthMiddleware(handlers.UpdateTaskStatusHandler))
 	http.HandleFunc("/api/notificationTask", handlers.AuthMiddleware(handlers.GetNotificationsHandler))
 
 	// Serve static files

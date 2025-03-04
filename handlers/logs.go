@@ -246,6 +246,12 @@ func DeleteTasksHandler(w http.ResponseWriter, r *http.Request) {
 
 // API Handler - Update JSON or FORM Data
 func UpdateTaskStatusHandler(w http.ResponseWriter, r *http.Request) {
+	role, ok := r.Context().Value("r").(string)
+	if !ok {
+		http.Error(w, "Unauthorized: Role not found", http.StatusUnauthorized)
+		return
+	}
+
 	if r.Method != http.MethodPost && r.Method != http.MethodGet {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
@@ -265,43 +271,23 @@ func UpdateTaskStatusHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := db.Exec("UPDATE logtasks SET s = ? WHERE id = ?", newStatus, taskID)
-	if err != nil {
-		http.Error(w, "Failed to update task status", http.StatusInternalServerError)
-		return
+	if role == "admin" {
+		_, err := db.Exec("UPDATE logtasks SET s = ? WHERE id = ?", newStatus, taskID)
+		if err != nil {
+			http.Error(w, "Failed to update task status", http.StatusInternalServerError)
+			return
+		}
+
+		http.Redirect(w, r, "/logtasks", http.StatusSeeOther)
+	} else {
+		_, err := db.Exec("UPDATE logtasks SET s = ? WHERE id = ? and r = 'user' ", newStatus, taskID)
+		if err != nil {
+			http.Error(w, "Failed to update task status", http.StatusInternalServerError)
+			return
+		}
+
+		http.Redirect(w, r, "/logtasks-user", http.StatusSeeOther)
 	}
-
-	http.Redirect(w, r, "/logtasks", http.StatusSeeOther)
-}
-
-// API Handler - Update JSON or FORM Data User
-func UpdateTaskStatusHandler_User(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost && r.Method != http.MethodGet {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
-
-	taskID := r.URL.Query().Get("id")
-	newStatus := r.URL.Query().Get("status")
-
-	if r.Method == http.MethodPost {
-		taskID = r.FormValue("id")
-		newStatus = r.FormValue("status")
-	}
-
-	// Validation
-	if taskID == "" || newStatus == "" {
-		http.Error(w, "Missing parameters", http.StatusBadRequest)
-		return
-	}
-
-	_, err := db.Exec("UPDATE logtasks SET s = ? WHERE id = ?", newStatus, taskID)
-	if err != nil {
-		http.Error(w, "Failed to update task status", http.StatusInternalServerError)
-		return
-	}
-
-	http.Redirect(w, r, "/logtasks-user", http.StatusSeeOther)
 }
 
 // API Handler - Notifications From Task Log
