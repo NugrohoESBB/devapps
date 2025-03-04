@@ -46,6 +46,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	sessionToken := fmt.Sprintf("session-%d-%d", userID, time.Now().Unix())
 
 	_, err = db.Exec("INSERT INTO sessions (u_id, tn, r, t) VALUES (?, ?, ?, NOW())", userID, sessionToken, role)
+	_, err = db.Exec("INSERT INTO logsessions (tn, s) VALUES (?, ?)", sessionToken, "Login")
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
