@@ -12,8 +12,8 @@ type APILogData struct {
 	D 	string  `json:"d"`
 	T 	string 	`json:"t"`
 	N	string  `json:"n"`
-	K 	float64 `json:"k"`
 	L 	string  `json:"l"`
+	K 	float64 `json:"k"`
 	I 	float64 `json:"i"`
 	F	float64 `json:"f"`
 	A 	float64 `json:"a"`
