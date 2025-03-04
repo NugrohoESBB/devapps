@@ -64,7 +64,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	})
 
 	// Debugging cookie
-	fmt.Println("Session Token:", sessionToken)
+	fmt.Println("Session Token:", sessionToken, "Login")
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
@@ -81,6 +81,7 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := db.Exec("DELETE FROM sessions WHERE tn = ?", cookie.Value)
+	result, err = db.Exec("INSERT INTO logsessions (tn, s) VALUES (?, ?)", cookie.Value, "Logout")
 	if err != nil {
 		http.Error(w, "Failed to logout", http.StatusInternalServerError)
 		return
@@ -99,6 +100,9 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   -1,
 		HttpOnly: true,
 	})
+
+	// Debugging cookie
+	fmt.Println("Session Token:", cookie.Value, "Logout")
 
 	w.WriteHeader(http.StatusOK)
 }

@@ -60,6 +60,7 @@
 						</a>
 					</li>
 
+
 					<li class="sidebar-header">
 						Input Data
 					</li>
@@ -171,7 +172,13 @@
                                                     <td>{{.D}}</td>
                                                     <td>{{.T}}</td>
                                                     <td>{{.TN}}</td>
-                                                    <td><span class="badge" style="background-color: rgb(46, 134, 171);">{{.S}}</span></td>
+                                                    <td>
+														{{if eq .S "Login"}}
+															<span class="badge" style="background-color: rgb(46, 134, 171);">{{.S}}</span>
+														{{else}}
+															<span class="badge" style="background-color: rgb(201, 134, 134);">{{.S}}</span>
+														{{end}}
+													</td>
                                                 </tr>
                                                 {{end}}
                                             </tbody>
