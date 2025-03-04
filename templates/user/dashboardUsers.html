@@ -55,13 +55,13 @@
 						Activity Log
 					</li>
 
-					<!-- <li class="sidebar-item">
-						<a class="sidebar-link" href="/logs">
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/logs-user">
 							<i class="align-middle" data-feather="activity"></i> <span class="align-middle">Log Data</span>
 						</a>
 					</li>
 
-					<li class="sidebar-item">
+					<!-- <li class="sidebar-item">
 						<a class="sidebar-link" href="/informationLog">
 							<i class="align-middle" data-feather="server"></i> <span class="align-middle">Information Data</span>
 						</a>
@@ -258,8 +258,11 @@
 													<th>D</th>
 													<th>T</th>
 													<th>N</th>
-													<th>R</th>
-													<th>E</th>
+													<th>L</th>
+													<th>K</th>
+													<th>I</th>
+													<th>F</th>
+													<th>A</th>
 												</tr>
 											</thead>
 											<tbody>
@@ -269,8 +272,11 @@
 													<td>{{.D}}</td>
 													<td>{{.T}}</td>
 													<td>{{.N}}</td>
-													<td>{{.R}}</td>
-													<td>{{.E}}</td>
+													<td>{{.L}}</td>
+													<td>{{.K}}</td>
+													<td>{{.I}}</td>
+													<td>{{.F}}</td>
+													<td>{{.A}}</td>
 												</tr>
 												{{end}}
 											</tbody>
@@ -570,32 +576,32 @@
 								{
 									label: "K",
 									data: kData,
-									borderColor: "rgba(61, 204, 249, 1)",
-									backgroundColor: "rgba(56, 221, 244, 0.2)",
+									borderColor: "rgba(33, 158, 188, 1)",
+									backgroundColor: "rgba(142, 202, 230, 0.2)",
 									borderWidth: 4,
 									fill: true,
 								},
 								{
 									label: "I",
 									data: iData,
-									borderColor: 'rgba(89, 223, 172, 1)',
-									backgroundColor: 'rgba(192, 255, 209, 0.2)',
+									borderColor: 'rgba(251, 133, 0, 1)',
+									backgroundColor: 'rgba(255, 183, 3, 0.2)',
 									borderWidth: 4,
 									fill: true,
 								},
 								{
 									label: "F",
 									data: fData,
-									borderColor: "rgba(61, 204, 249, 1)",
-									backgroundColor: "rgba(56, 221, 244, 0.2)",
+									borderColor: "rgba(152, 114, 132, 1)",
+									backgroundColor: "rgba(184, 158, 151, 0.2)",
 									borderWidth: 4,
 									fill: true,
 								},
 								{
 									label: "A",
 									data: aData,
-									borderColor: 'rgba(89, 223, 172, 1)',
-									backgroundColor: 'rgba(192, 255, 209, 0.2)',
+									borderColor: 'rgba(178, 76, 99, 1)',
+									backgroundColor: 'rgba(176, 123, 172, 0.2)',
 									borderWidth: 4,
 									fill: true,
 								}]

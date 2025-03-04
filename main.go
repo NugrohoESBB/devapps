@@ -29,6 +29,7 @@ func main() {
 
 	// Protected pages - User
 	http.HandleFunc("/dashboard-user", handlers.AuthMiddleware(handlers.DashboardHandler))
+	http.HandleFunc("/logs-user", handlers.AuthMiddleware(handlers.LogDataHandler))
 	http.HandleFunc("/logtasks-user", handlers.AuthMiddleware(handlers.LogTasksHandler))
 
 	// =============== ALL API ===============
