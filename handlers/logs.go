@@ -99,7 +99,7 @@ func AddLogDataHandler(w http.ResponseWriter, r *http.Request) {
 
 // Handler GET JSON - For JPL Chart Dashboard
 func GetLogDataStatsHandler(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Query("SELECT d, k, i, f, a FROM logs ORDER BY d DESC LIMIT 7")
+	rows, err := db.Query("SELECT id, d, k, i, f, a FROM logs ORDER BY id DESC LIMIT 7")
 	if err != nil {
 		http.Error(w, "Gagal mengambil data log", http.StatusInternalServerError)
 		return
@@ -108,22 +108,24 @@ func GetLogDataStatsHandler(w http.ResponseWriter, r *http.Request) {
 
 	var data []map[string]interface{}
 	for rows.Next() {
-		var d string
-		var k float64
-		var i float64
-		var f float64
-		var a float64
-		err := rows.Scan(&d, &k, &i, &f, &a)
+		var id 	string
+		var d 	string
+		var k 	float64
+		var i 	float64
+		var f 	float64
+		var a 	float64
+		err := rows.Scan(&id, &d, &k, &i, &f, &a)
 		if err != nil {
 			http.Error(w, "Gagal membaca data", http.StatusInternalServerError)
 			return
 		}
 		data = append(data, map[string]interface{}{
-			"d"	: d,
-			"k"	: k,
-			"i"	: i,
-			"f"	: f,
-			"a"	: a,
+			"id"	: id,
+			"d"		: d,
+			"k"		: k,
+			"i"		: i,
+			"f"		: f,
+			"a"		: a,
 		})
 	}
 
